@@ -4,6 +4,8 @@ import static com.example.modernjava.Color.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.BiFunction;
@@ -186,13 +188,58 @@ public class ModernJavaApplication {
 		System.out.println("integrate = " + integrate);
 
 		/**
+		 * -------------------------------------------------------------------------------------------------------------
 		 * 함수형인터페이스 -> 추상메서드만을 정의하는 인터페이스
 		 * 함수형인터페이스가 기대되는곳 -> 람다쓸수있다
 		 * 람다는 함수형인터페이스 추상메서드를 즉석제공 , 람다표현전체가 함수형인터페이스의 인스턴스
 		 * 메서드참조기능
 		 * 디폴트메서드 조합제공
 		 * 오토박싱 메모리효율을 고려한 , 기본형특화 인터페이스제공
+		 * -------------------------------------------------------------------------------------------------------------
 		 */
+
+		List<Apple> appleList = new ArrayList<>();
+
+		for (Apple apple : apples) {
+			if (apple.getWeight() < 150) {
+				appleList.add(apple);
+			}
+		}
+
+		appleList.sort(
+				Comparator.comparing(Apple::getWeight)
+		);
+//		Collections.sort(
+//				appleList,
+//				new Comparator<Apple>() {
+//					@Override
+//					public int compare(Apple o1, Apple o2) {
+//						return Integer.compare(
+//								o1.getWeight(), o2.getWeight(
+//								));
+//					}
+//				}
+//		);
+
+		List<Integer> lowName = new ArrayList<>();
+
+		for (Apple apple : appleList) {
+			lowName.add(apple.getNum());
+		}
+
+		/**
+		 * 스트림 병렬처리 @@@@
+		 * 마치 sql 의 질의 @ 처럼 할수있다.
+		 */
+
+		List<Integer> collect4 = apples.parallelStream().filter(
+				apple -> apple.getWeight() < 150
+		).sorted(Comparator.comparing(Apple::getWeight)).map(
+				apple -> apple.getNum()
+		).collect(Collectors.toList());
+
+
+
 
 
 	}
