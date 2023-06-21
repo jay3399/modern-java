@@ -10,7 +10,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.DoubleFunction;
 import java.util.function.Function;
@@ -18,6 +22,7 @@ import java.util.function.IntFunction;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -28,13 +33,10 @@ public class ModernJavaApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(ModernJavaApplication.class, args);
 
-		List<Apple> apples = Arrays.asList(new Apple(130, RED , 2), new Apple(170, GREEN , 1 ),
-				new Apple(190, RED , 5),
-				new Apple(110, RED , 6 ), new Apple(130, GREEN , 3 ) , new Apple(130 , BROWN ,7) , new Apple(170 , RED , 8));
-
-
-
-
+		List<Apple> apples = Arrays.asList(new Apple(130, RED, 2), new Apple(170, GREEN, 1),
+				new Apple(190, RED, 5),
+				new Apple(110, RED, 6), new Apple(130, GREEN, 3), new Apple(130, BROWN, 7),
+				new Apple(170, RED, 8));
 
 		Thread hello = new Thread(
 				new Runnable() {
@@ -45,7 +47,6 @@ public class ModernJavaApplication {
 				}
 		);
 
-
 		AppleFormatter appleFormatter = new AppleFancyFormatter();
 
 		ApplePredicate applePredicate = new AppleGreenColorPredicate();
@@ -53,8 +54,6 @@ public class ModernJavaApplication {
 		PrettyApple prettyApple = new PrettyApple(apples, appleFormatter);
 
 		prettyApple.prettyPrintApple(apples, appleFormatter);
-
-
 
 		// 동작파라미터화
 		List<Apple> apples1 = prettyApple.filterApple(apples, applePredicate);
@@ -64,7 +63,6 @@ public class ModernJavaApplication {
 
 		// 함수형인터페이스 + 람다
 		List<Apple> apples3 = prettyApple.filterAppleV2(apples, apple -> RED == apple.getColor());
-
 
 		for (Apple apple : apples1) {
 			System.out.println("apple = " + apple.getWeight());
@@ -77,15 +75,12 @@ public class ModernJavaApplication {
 
 		prettyApple.prettyPrintAppleV2(apples, apple -> System.out.println(apple.getWeight()));
 
-
 //    생성자 참조 만든뒤 , 사용한다
 
 //    디폴트 생성자참조
 //		Supplier<Block> blockSupplier = Block::new;
 //
 //		Block block = blockSupplier.get();
-
-
 
 //    무게포함 생성자
 
@@ -119,10 +114,8 @@ public class ModernJavaApplication {
 //		System.out.println("apply2 = " + apply2.getWeight());
 //		System.out.println("apply2.getColor( = " + apply2.getColor());
 
-
 		// 생성자 , 파라미터 3개일시에는 , 직접 인터페이스 만든다 .
 		TriFunction<Integer, Integer, Integer, Tri> function = Tri::new;
-
 
 		//디폴트는 오름처순 , then comparing 안해도 항목같으면 디폴트 오름차순비교  , but 다음은 내림차순하고싶으면 then 메서드
 
@@ -139,14 +132,12 @@ public class ModernJavaApplication {
 
 		Predicate<Apple> redAppleAndHeavy = redApple.and(apple -> apple.getWeight() > 150);
 
-
 		List<Apple> collect = apples.stream().filter((redApple)).collect(Collectors.toList());
 
 		List<Apple> collect1 = apples.stream().filter(negate).collect(Collectors.toList());
 
 		List<Apple> collect2 = apples.stream().filter(redAppleAndHeavy)
 				.collect(Collectors.toList());
-
 
 		for (Apple apple : apples) {
 			// 일반적으로는 test 메서드를 써야하지만  , 스트림 filter 를쓰면 그럴필요가 없다 . @@@@@@@
@@ -156,7 +147,6 @@ public class ModernJavaApplication {
 			}
 
 		}
-
 
 		System.out.println("collect = " + collect);
 
@@ -175,7 +165,6 @@ public class ModernJavaApplication {
 		List<Integer> collect3 = integers.stream().map(g).collect(Collectors.toList());
 
 		System.out.println(collect3);
-
 
 		List<Integer> result = new ArrayList<>();
 
@@ -231,13 +220,11 @@ public class ModernJavaApplication {
 			lowName.add(apple.getNum());
 		}
 
-
 		List<Integer> collect4 = apples.parallelStream().filter(
 				apple -> apple.getWeight() < 150
 		).sorted(Comparator.comparing(Apple::getWeight)).map(
 				apple -> apple.getNum()
 		).collect(Collectors.toList());
-
 
 		/**
 		 * 스트림 병렬처리 @@@@
@@ -382,8 +369,6 @@ public class ModernJavaApplication {
 		).skip(2).collect(Collectors.toList());
 		System.out.println("collect11 = " + collect11);
 
-
-
 		menu.stream().filter(
 				dish -> dish.getType() == MEAT
 		).limit(2).forEach(System.out::println);
@@ -420,8 +405,7 @@ public class ModernJavaApplication {
 		// 각 배열을 @별도의스트림@으로 생성
 		// 해결 x
 
-
-    // 문자열 배열 반환 !!
+		// 문자열 배열 반환 !!
 		List<String> collect16 = list1.stream().map(w -> w.split(""))
 				.flatMap(Arrays::stream).distinct().collect(Collectors.toList());
 		// 생선된 스트림을 하나의 스트림으로 평면화 @@
@@ -446,7 +430,7 @@ public class ModernJavaApplication {
 
 		List<int[]> collect19 = num1.stream().flatMap(
 				i -> num2.stream().filter(
-						j ->( j + i) % 3 == 0
+						j -> (j + i) % 3 == 0
 				).map(
 						j -> new int[]{i, j}
 				)
@@ -458,11 +442,212 @@ public class ModernJavaApplication {
 			}
 		}
 
+//		char addddsssscccccc = findMostRepeatedCharacter("aaabbbccc");
+//		System.out.println("addddsssscccccc = " + addddsssscccccc);
+//
+//		int[][] targets = {{1, 2}, {3, 1}, {6, 3}, {9, 7}};
+//
+//		solution(targets);
+
+		/**
+		 * 쇼트서킷 기법
+		 * and 연선중 , 단하나라도 false가나오면 이후 결과와 상관없이 전체가 false
+		 * 아래 스트림역시 이와같이 작동 limit도 동일
+		 */
+
+		if (menu.stream().anyMatch(Dish::isVegetartian)) {
+			System.out.println("존재");
+		}
+
+		if (menu.stream().allMatch(dish -> dish.getCalories() < 1000)) {
+			System.out.println("건강");
+		}
+
+		if (menu.stream().noneMatch(dish -> dish.getCalories() > 1000)) {
+			System.out.println("건강");
+		}
+
+		// 다른 메서드와 조합가능
+		Optional<Dish> any = menu.stream().filter(
+				Dish::isVegetartian
+		).findAny();
+
+		System.out.println(any.get());
+
+		menu.stream().filter(
+				Dish::isVegetartian
+		).findAny().ifPresent(dish -> System.out.println(dish.getName()));
+
+//		String[] input = new String[]{
+//				"1622025201 REQUEST 10001 192.168.0.1",
+//				"1622025202 REQUEST 10002 192.168.0.2",
+//				"1622025203 REQUEST 10003 192.168.0.1",
+//				"1622025211 RESPONSE 10003",
+//				"1622025212 RESPONSE 10002",
+//				"1622025213 RESPONSE 10001",
+//				"1622025221 REQUEST 10004 192.168.0.2",
+//				"1622025223 REQUEST 10005 192.168.0.2",
+//				"1622025230 RESPONSE 10004",
+//				"1622025231 REQUEST 10006 192.168.0.3",
+//				"1622025236 RESPONSE 10006"
+//		};
+
+//		Map<String, Integer> ipRequestCount = new HashMap<>();
+//
+//		for (String log : input) {
+//			String[] parts = log.split(" ");
+//			String logType = parts[1];
+//
+//			if (logType.equals("REQUEST")) {
+//				String ipAddress = parts[3];
+//				ipRequestCount.put(ipAddress, ipRequestCount.getOrDefault(ipAddress, 0) + 1);
+//			}
+//		}
+//
+//		for (Map.Entry<String, Integer> entry : ipRequestCount.entrySet()) {
+//			System.out.println("(" + entry.getKey() + ", " + entry.getValue() + ")");
+//		}
+
+//		Map<String, Long> ipRequestCount2 = Arrays.stream(input)
+//				.filter(log -> log.split(" ")[1].equals("REQUEST"))
+//				.map(log -> log.split(" ")[3])
+//				.collect(Collectors.groupingBy(ip -> ip, Collectors.counting()));
+//
+//		ipRequestCount2.forEach((ip, count) -> System.out.println("(" + ip + ", " + count + ")"));
+
+//
+//		Map<String, Long> requestTimes = new HashMap<>();
+//		Map<String, Long> responseTimes = new HashMap<>();
+//
+//		for (String log : input) {
+//			String[] parts = log.split(" ");
+//			long timestamp = Long.parseLong(parts[0]);
+//			String logType = parts[1];
+//			String requestId = parts[2];
+//
+//			if (logType.equals("REQUEST")) {
+//				requestTimes.put(requestId, timestamp);
+//			} else if (logType.equals("RESPONSE")) {
+//				responseTimes.put(requestId, timestamp);
+//			}
+//		}
+//
+//		for (Map.Entry<String, Long> entry : requestTimes.entrySet()) {
+//			String requestId = entry.getKey();
+//			long requestTime = entry.getValue();
+//			long responseTime = responseTimes.getOrDefault(requestId, -1L);
+//
+//			if (responseTime != -1) {
+//				long elapsedTime = responseTime - requestTime;
+//				System.out.println("(" + requestId + ", " + requestTime + ", " + elapsedTime + ")");
+//			} else {
+//				System.out.println("(" + requestId + ", " + requestTime + ", FAIL)");
+//			}
+//		}
+//	}
+
+		/**
+		 * findFirst vs findAny  , 요소의 반환순서가 상관없으면 findAny
+		 */
+
+
+
+
+		/**
+		 * 리듀싱
+		 * 스트림 모든요소를 처리해서 값으로 도출
+		 * 리듀싱연산 -> 마치종이(스트림)를 작은조각이 될떄까지 반복해서 접는것 , 폴드
+		 */
+
+		int[] integers2 = {1, 2, 3, 4, 5};
+
+		int sum = 0;
+
+		for (int integer : integers2) {
+			sum += integer;
+		}
+		System.out.println(sum);
+
+		IntStream stream2 = Arrays.stream(integers2);
+
+		int sum1 = stream2.sum();
+
+		List<Integer> integers3 = Arrays.asList(4, 5, 3, 9);
+
+		Integer reduce = integers3.stream().reduce(
+				0, (a, b) -> a + b
+		);
+
+		System.out.println("sum1 = " + sum1);
+		System.out.println("reduce = " + reduce);
+
+		Integer reduce1 = integers3.stream().reduce(
+				1, (a, b) -> a * b
+		);
+
+		Integer reduce2 = integers3.stream().reduce(
+				0, Integer::sum
+		);
+
+
+		System.out.println("reduce1 = " + reduce1);
+		System.out.println("reduce2 = " + reduce2);
+
+		Optional<Integer> reduce3 = integers3.stream().reduce(
+				Integer::sum
+		);
+		System.out.println("reduce3 = " + reduce3);
+
+		Optional<Integer> reduce4 = integers3.stream().reduce(
+				Integer:: max
+		);
+		System.out.println("reduce4 = " + reduce4);
+
+		/**
+		 * map-reduce 패턴 , 쉽게 병렬화하는 특징
+		 *
+		 * reduce 이용 , 내부반복이 추상화되면서 내부구현에서 병렬로 reduce 실행
+		 * 반복적인 합계에서는 sum 변수를 공유 하기떄문에 , 병렬화자체가 힘들다
+		 * 강제적동기회 -> 병렬화로 얻어야할 이득 << 스레드간의 소모적 경쟁때문에 상쇄
+		 *
+		 *
+		 *
+		 */
+
+		Integer reduce5 = menu.stream().map(
+				a -> 1
+		).reduce(
+				0, (a, b) -> a + b
+		);
+
+
+		long count = menu.stream().count();
+
+
+		System.out.println("reduce5 = " + reduce5);
+		System.out.println("count = " + count);
+
+		/**
+		 * 대가지불해야한다 , 리듀스에 넘겨준 랑다의상태가 바뀌지말아야하고 , 연산이 어떤순서로 실행돼도 바뀌지 말아야한다
+		 */
+		Integer reduce6 = integers3.parallelStream().reduce(
+				0, Integer::sum
+		);
+
+		/**
+		 * reduce , sum , max -> 결과를 누적할 내부상태필요 , 예제는 작은값 int 또는 double 사용 , 내부상태크기는 한장되어있다
+		 * sorted distinct 같은연산은 , 다른 스트림을 출력하는것같지만 정렬 , 중복제거를하려면 과거이력을 알고있어야한다
+		 * 모든요소가 버퍼에 추가되어 있어야한다@@
+		 * 연산을 수행하는데 필요한 저장소크기는 정해져있지않고 , 무한이면 문제가 생길수있다
+		 *
+		 */
+
+
+
+
+
 
 	}
-
-
-
 
 	// Function<Double , Double >  에비해 결과를 박싱하지않아도된다 . double -> Double 박싱과정
 	public static double integrate(DoubleFunction<Double> f, double a, double b) {
@@ -472,8 +657,7 @@ public class ModernJavaApplication {
 	}
 
 
-
-	public static List<Block> map(List<Integer> list, Function<Integer,Block> f) {
+	public static List<Block> map(List<Integer> list, Function<Integer, Block> f) {
 
 		List<Block> result = new ArrayList<>();
 
@@ -487,5 +671,48 @@ public class ModernJavaApplication {
 	}
 
 
+	public static char findMostRepeatedCharacter(String input) {
+		Map<Character, Long> characterCounts = input.chars()
+				.mapToObj(c -> (char) c)
+				.collect(Collectors.groupingBy(c -> c, Collectors.counting()));
 
+
+		char result = characterCounts.entrySet().stream()
+				.max(Map.Entry.comparingByValue())
+				.map(Map.Entry::getKey)
+				.orElse('\0');
+
+		return result;
+
+
+	}
+
+	public static int solution(int[][] targets) {
+		// 폭격 미사일들을 끝 지점을 기준으로 오름차순으로 정렬합니다.
+		Arrays.sort(targets, Comparator.comparingInt(a -> a[1]));
+
+		for (int[] target : targets) {
+			for (int i : target) {
+				System.out.println("i = " + i);
+			}
+		}
+
+
+		// 요격 미사일 수를 계산합니다.
+		int interceptCount = (int) Arrays.stream(targets)
+				.filter(target -> target[0] > getPreviousMaxX(targets))
+				.count();
+
+		return interceptCount;
+	}
+
+	private static int getPreviousMaxX(int[][] targets) {
+		// 이전에 처리한 폭격 미사일들 중 가장 큰 x 좌표를 구합니다.
+		return Arrays.stream(targets)
+				.mapToInt(target -> target[1])
+				.max()
+				.orElse(-1);
+	}
 }
+
+
