@@ -746,8 +746,6 @@ public class ModernJavaApplication {
 		 * 2
 		 */
 
-
-
 		Optional<Integer> reduce8 = transactions.stream().map(
 				Transaction::getValue
 		).reduce(
