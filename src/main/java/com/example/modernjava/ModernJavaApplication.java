@@ -570,6 +570,7 @@ public class ModernJavaApplication {
 
 		IntStream stream2 = Arrays.stream(integers2);
 
+
 		int sum1 = stream2.sum();
 
 		List<Integer> integers3 = Arrays.asList(4, 5, 3, 9);
@@ -636,6 +637,7 @@ public class ModernJavaApplication {
 
 		/**
 		 * reduce , sum , max -> 결과를 누적할 내부상태필요 , 예제는 작은값 int 또는 double 사용 , 내부상태크기는 한장되어있다
+		 *
 		 * sorted distinct 같은연산은 , 다른 스트림을 출력하는것같지만 정렬 , 중복제거를하려면 과거이력을 알고있어야한다
 		 * 모든요소가 버퍼에 추가되어 있어야한다@@
 		 * 연산을 수행하는데 필요한 저장소크기는 정해져있지않고 , 무한이면 문제가 생길수있다
@@ -643,8 +645,187 @@ public class ModernJavaApplication {
 		 */
 
 
+		List<Integer> collect20 = integers3.stream().filter(
+				integer -> integer % 3 == 0
+		).map(
+				integer -> integer * 3
+		).collect(Collectors.toList());
+
+		System.out.println("collect20 = " + collect20);
+
+		List<Double> collect21 = menu.stream().filter(
+				m -> m.getCalories() > 500
+		).map(
+				m -> m.getCalories() * 0.3
+		).collect(Collectors.toList());
+
+		System.out.println("collect21 = " + collect21);
+
+		/**
+		 * ---------------------------------------------------------------------------------------------
+		 */
+
+		Trader raoul = new Trader("Raoul", "Cambridge");
+		Trader mario = new Trader("Mario", "Milan");
+		Trader alan = new Trader("Alan", "Cambridge");
+		Trader brian = new Trader("Brian", "Cambridge");
+
+		List<Transaction> transactions = Arrays.asList(
+				new Transaction(brian, 2011, 300),
+				new Transaction(raoul, 2012, 1000),
+				new Transaction(raoul, 2011, 400),
+				new Transaction(mario, 2012, 710),
+				new Transaction(mario, 2012, 700),
+				new Transaction(alan, 2012, 950)
+		);
+
+		List<Trader> traders = Arrays.asList(
+				raoul, mario, alan, brian
+		);
+
+		List<Transaction> collect22 = transactions.stream().filter(
+						transaction -> transaction.getYear() == 2011
+				).sorted(Comparator.comparing(transaction -> transaction.getValue()))
+				.collect(Collectors.toList());
+
+		System.out.println("collect22 = " + collect22);
+
+		List<String> collect23 = traders.stream().map(
+				trader -> trader.getLocation()
+		).distinct().collect(Collectors.toList());
+
+		System.out.println("collect23 = " + collect23);
+
+		List<String> collect24 = transactions.stream().map(
+				transaction -> transaction.getTrader().getLocation()
+		).distinct().collect(Collectors.toList());
+
+		System.out.println("collect24 = " + collect24);
+
+		List<Transaction> collect25 = transactions.stream().filter(
+				transaction -> transaction.getTrader().getLocation() == "Cambridge"
+		).sorted(Comparator.comparing(transaction -> transaction.getTrader().getName())).collect(
+				Collectors.toList());
+
+		System.out.println("collect25 = " + collect25);
+
+		List<String> collect26 = transactions.stream().map(
+				transaction -> transaction.getTrader().getName()
+		).distinct().sorted().collect(Collectors.toList());
+
+		/**
+		 * ?
+		 */
+
+		String collect28 = transactions.stream().map(
+				transaction -> transaction.getTrader().getName()
+		).distinct().sorted().collect(Collectors.joining());
+
+		System.out.println("collect26 = " + collect26);
+		System.out.println("collect28 = " + collect28);
+
+		boolean b = transactions.stream().anyMatch(
+				transaction -> transaction.getTrader().getLocation().equals("Milan")
+		);
+
+		System.out.println("b = " + b);
+
+		List<Integer> collect27 = transactions.stream().filter(
+				transaction -> transaction.getTrader().getLocation() == "Cambridge"
+		).map(transaction -> transaction.getValue()).collect(Collectors.toList());
+
+		System.out.println("collect27 = " + collect27);
+
+		Optional<Integer> reduce7 = transactions.stream().map(
+				Transaction::getValue
+		).reduce(
+				Integer::max
+		);
+
+		/**
+		 * 2
+		 */
 
 
+
+		Optional<Integer> reduce8 = transactions.stream().map(
+				Transaction::getValue
+		).reduce(
+				Integer::min
+		);
+
+		Optional<Transaction> reduce9 = transactions.stream().reduce(
+				(t1, t2) -> t1.getValue() < t2.getValue() ? t1 : t2
+		);
+
+
+
+
+
+		Optional<Transaction> max = transactions.stream().max(Comparator.comparing(Transaction::getValue));
+
+
+		System.out.println("reduce7 = " + reduce7);
+		System.out.println("max = " + max);
+
+		System.out.println("reduce8 = " + reduce8);
+		System.out.println("reduce9 = " + reduce9);
+
+
+
+
+
+		/**
+		 * 아래는 , 중간에 언박싱과정이 들어간다 Integer -> int
+		 *
+		 * 역시 기본형 특화 스트림 제공된다
+		 * IntStream.
+		 */
+
+		Integer reduce10 = transactions.stream().map(
+				transaction -> transaction.getValue()    // Integer 반환
+		).reduce(
+				0, Integer::sum                   // Integer -> int -> 연산 -> 다시 Integer
+		);
+
+		int reduce11 = transactions.stream().mapToInt(
+				Transaction::getValue                    // int 반환
+		).reduce(
+				0, Integer::sum                   // 연산 -> int
+		);
+
+		// IntStream 기본제공 메서드 사용가능 @@@
+
+		int sum2 = transactions.stream().mapToInt(
+				Transaction::getValue
+		).sum();
+
+
+
+		System.out.println("reduce10 = " + reduce10);
+		System.out.println("reduce11 = " + reduce11);
+		System.out.println("sum2 = " + sum2);
+
+		IntStream intStream = transactions.stream().mapToInt(
+				Transaction::getValue
+		);
+
+		Stream<Integer> boxed = intStream.boxed();  // 객체스트림으로 변환
+
+		transactions.stream().mapToInt(
+				Transaction::getValue
+		);
+
+		/**
+		 * 정적 메서드 제공
+		 * closed 는 값포함
+		 * range 는 값 포함x
+		 */
+		IntStream.rangeClosed( 200 , 400 ).filter(
+				i -> i % 3 == 0
+		).forEach(
+				s -> System.out.println("s = " + s)
+		);
 
 
 	}
