@@ -876,7 +876,7 @@ public class Main {
     long uniqueWords = 0;
 
     try (Stream<String> lines = Files.lines(
-        Paths.get("/Users/jay/Downloads/test/data.txt"), Charset.defaultCharset())) {
+        Paths.get("/Users/jay/Downloads/test/test1.txt"), Charset.defaultCharset())) {
 
       uniqueWords =
           lines.flatMap(
