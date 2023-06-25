@@ -6,6 +6,7 @@ import static com.example.modernjava.Color.RED;
 import static com.example.modernjava.Dish.Type.FISH;
 import static com.example.modernjava.Dish.Type.MEAT;
 import static com.example.modernjava.Dish.Type.OTHER;
+import static java.util.stream.Collectors.*;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -14,6 +15,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.IntSummaryStatistics;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -130,12 +132,14 @@ public class Main {
 
     Predicate<Apple> redAppleAndHeavy = redApple.and(apple -> apple.getWeight() > 150);
 
-    List<Apple> collect = apples.stream().filter((redApple)).collect(Collectors.toList());
 
-    List<Apple> collect1 = apples.stream().filter(negate).collect(Collectors.toList());
+
+    List<Apple> collect = apples.stream().filter((redApple)).collect(toList());
+
+    List<Apple> collect1 = apples.stream().filter(negate).collect(toList());
 
     List<Apple> collect2 = apples.stream().filter(redAppleAndHeavy)
-        .collect(Collectors.toList());
+        .collect(toList());
 
     for (Apple apple : apples) {
       // 일반적으로는 test 메서드를 써야하지만  , 스트림 filter 를쓰면 그럴필요가 없다 . @@@@@@@
@@ -160,7 +164,7 @@ public class Main {
 
     List<Integer> integers = Arrays.asList(3, 6, 7, 8);
 
-    List<Integer> collect3 = integers.stream().map(g).collect(Collectors.toList());
+    List<Integer> collect3 = integers.stream().map(g).collect(toList());
 
     System.out.println(collect3);
 
@@ -222,7 +226,7 @@ public class Main {
         apple -> apple.getWeight() < 150
     ).sorted(Comparator.comparing(Apple::getWeight)).map(
         apple -> apple.getNum()
-    ).collect(Collectors.toList());
+    ).collect(toList());
 
     /**
      * 스트림 병렬처리 @@@@
@@ -250,7 +254,7 @@ public class Main {
      */
     List<String> collect5 = menu.stream().filter(
         dish -> dish.getCalories() > 300
-    ).map(Dish::getName).limit(3).collect(Collectors.toList());
+    ).map(Dish::getName).limit(3).collect(toList());
 
     System.out.println("collect5 = " + collect5);
 
@@ -291,7 +295,7 @@ public class Main {
     // 스트림 , 반복자 필요x , 내부반복
     List<String> collect6 = menu.stream().map(
         Dish::getName
-    ).collect(Collectors.toList());
+    ).collect(toList());
 
     /**
      * 장난가정리
@@ -299,7 +303,7 @@ public class Main {
      * vs
      * 바닥에있는 모든장난감 담아 & 여러손이용 & 모든장난감 상자근처로 한번에 가져가서 담는다
      *
-     * 외부반복은 , 병렬성을 스스로관리
+     * 내부반복 , 병렬성을 스스로관리
      */
 
     /**
@@ -317,7 +321,7 @@ public class Main {
           System.out.println("map" + dish.getName()); // 추출한 요리명 출력
           return dish.getName();
         })
-        .limit(3).collect(Collectors.toList());
+        .limit(3).collect(toList());
 
     System.out.println(collect7);
 
@@ -349,22 +353,22 @@ public class Main {
 
     List<Dish> collect8 = dishes.stream().takeWhile(
         dish -> dish.getCalories() < 300
-    ).collect(Collectors.toList());
+    ).collect(toList());
 
     List<Dish> collect9 = dishes.stream().dropWhile(
         dish -> dish.getCalories() < 300
-    ).collect(Collectors.toList());
+    ).collect(toList());
 
     System.out.println("collect8 = " + collect8);
     System.out.println("collect9 = " + collect9);
 
     List<Dish> collect10 = dishes.stream().filter(dish -> dish.getCalories() < 300).limit(2)
-        .collect(Collectors.toList());
+        .collect(toList());
 
     System.out.println("collect10 = " + collect10);
     List<Dish> collect11 = dishes.stream().filter(
         dish -> dish.getCalories() < 300
-    ).skip(2).collect(Collectors.toList());
+    ).skip(2).collect(toList());
     System.out.println("collect11 = " + collect11);
 
     menu.stream().filter(
@@ -378,20 +382,20 @@ public class Main {
 
     List<String> collect12 = dishes.stream().map(
         Dish::getName
-    ).collect(Collectors.toList());
+    ).collect(toList());
 
     List<Integer> collect13 = dishes.stream().map(
         Dish::getName
     ).map(
         String::length
 
-    ).collect(Collectors.toList());
+    ).collect(toList());
 
     List<String> list1 = Arrays.asList("hello", "world");
 
     List<String[]> collect14 = list1.stream().map(
         s -> s.split("")
-    ).distinct().collect(Collectors.toList());
+    ).distinct().collect(toList());
     //-> 배열스트림을 반환한다 , 문자열스트림이 필요
 
     String[] words = {"Goodbye", "World"};
@@ -399,20 +403,20 @@ public class Main {
     Stream<String> stream1 = Arrays.stream(words); // 문자열 -> 스트림변환
 
     List<Stream<String>> collect15 = list1.stream().map(w -> w.split("")).map(Arrays::stream)
-        .distinct().collect(Collectors.toList());
+        .distinct().collect(toList());
     // 각 배열을 @별도의스트림@으로 생성
     // 해결 x
 
     // 문자열 배열 반환 !!
     List<String> collect16 = list1.stream().map(w -> w.split(""))
-        .flatMap(Arrays::stream).distinct().collect(Collectors.toList());
+        .flatMap(Arrays::stream).distinct().collect(toList());
     // 생선된 스트림을 하나의 스트림으로 평면화 @@
 
     List<Integer> num = Arrays.asList(1, 2, 3, 4, 5);
 
     List<Integer> collect17 = num.stream().map(
         a -> a * a
-    ).collect(Collectors.toList());
+    ).collect(toList());
 
     System.out.println("collect17 = " + collect17);
 
@@ -424,7 +428,7 @@ public class Main {
         i -> num2.stream().map(
             j -> new int[]{i, j}
         )
-    ).collect(Collectors.toList());
+    ).collect(toList());
 
     List<int[]> collect19 = num1.stream().flatMap(
         i -> num2.stream().filter(
@@ -432,7 +436,7 @@ public class Main {
         ).map(
             j -> new int[]{i, j}
         )
-    ).collect(Collectors.toList());
+    ).collect(toList());
 
     for (int[] ints : collect19) {
       for (int anInt : ints) {
@@ -639,7 +643,7 @@ public class Main {
         integer -> integer % 3 == 0
     ).map(
         integer -> integer * 3
-    ).collect(Collectors.toList());
+    ).collect(toList());
 
     System.out.println("collect20 = " + collect20);
 
@@ -647,7 +651,7 @@ public class Main {
         m -> m.getCalories() > 500
     ).map(
         m -> m.getCalories() * 0.3
-    ).collect(Collectors.toList());
+    ).collect(toList());
 
     System.out.println("collect21 = " + collect21);
 
@@ -676,32 +680,32 @@ public class Main {
     List<Transaction> collect22 = transactions.stream().filter(
             transaction -> transaction.getYear() == 2011
         ).sorted(Comparator.comparing(transaction -> transaction.getValue()))
-        .collect(Collectors.toList());
+        .collect(toList());
 
     System.out.println("collect22 = " + collect22);
 
     List<String> collect23 = traders.stream().map(
         trader -> trader.getLocation()
-    ).distinct().collect(Collectors.toList());
+    ).distinct().collect(toList());
 
     System.out.println("collect23 = " + collect23);
 
     List<String> collect24 = transactions.stream().map(
         transaction -> transaction.getTrader().getLocation()
-    ).distinct().collect(Collectors.toList());
+    ).distinct().collect(toList());
 
     System.out.println("collect24 = " + collect24);
 
     List<Transaction> collect25 = transactions.stream().filter(
         transaction -> transaction.getTrader().getLocation() == "Cambridge"
     ).sorted(Comparator.comparing(transaction -> transaction.getTrader().getName())).collect(
-        Collectors.toList());
+        toList());
 
     System.out.println("collect25 = " + collect25);
 
     List<String> collect26 = transactions.stream().map(
         transaction -> transaction.getTrader().getName()
-    ).distinct().sorted().collect(Collectors.toList());
+    ).distinct().sorted().collect(toList());
 
     /**
      * ?
@@ -709,7 +713,7 @@ public class Main {
 
     String collect28 = transactions.stream().map(
         transaction -> transaction.getTrader().getName()
-    ).distinct().sorted().collect(Collectors.joining());
+    ).distinct().sorted().collect(joining());
 
     System.out.println("collect26 = " + collect26);
     System.out.println("collect28 = " + collect28);
@@ -722,7 +726,7 @@ public class Main {
 
     List<Integer> collect27 = transactions.stream().filter(
         transaction -> transaction.getTrader().getLocation() == "Cambridge"
-    ).map(transaction -> transaction.getValue()).collect(Collectors.toList());
+    ).map(transaction -> transaction.getValue()).collect(toList());
 
     System.out.println("collect27 = " + collect27);
 
@@ -854,7 +858,7 @@ public class Main {
         key -> Stream.ofNullable(System.getProperty("home"))
     );
 
-    List<String> collect29 = stringStream.collect(Collectors.toList());
+    List<String> collect29 = stringStream.collect(toList());
 
     System.out.println("collect29 = " + collect29);
 
@@ -907,7 +911,7 @@ public class Main {
 
     List<Integer> collect30 = Stream.iterate(
         new int[]{0, 1}, n -> new int[]{n[1], n[0] + n[1]}
-    ).limit(20).map(n -> n[0]).collect(Collectors.toList());
+    ).limit(20).map(n -> n[0]).collect(toList());
 
     System.out.println("collect30 = " + collect30);
 
@@ -970,6 +974,83 @@ public class Main {
     );
 
 
+
+
+
+    /**
+     *  리듀싱 , 요약
+     */
+
+    Long collect31 = menu.stream().collect(counting());
+    long count1 = menu.stream().count();
+
+    System.out.println("collect31 = " + collect31);
+    System.out.println("count1 = " + count1);
+
+    Comparator<Dish> dishCaloriesComparator = Comparator.comparingInt(Dish::getCalories);
+
+    Optional<Dish> collect32 = menu.stream().collect(maxBy(dishCaloriesComparator));
+
+    System.out.println("collect32 = " + collect32);
+
+    /**
+     * 요약 연산
+     * 스트림에 있는 객체의 숫자필드의 합계나 평균등을 반환하는 연산에도 리듀싱기능이 자주 사용된다 -> 요약
+     *
+     * summingInt 는 객체를 int 로 매핑하는 함수!를 인수로 받는다
+     * summingInt 의 인수로 전달된 함수는 객체를 int 로 매핑한 컬렉터!를 반환한다
+     * 마지막으로 summingInt 가 collect 메서드로 전달되면 요약작업 시작.
+     *
+     */
+
+    /**
+     * 각 요소에 , int 로 매핑하는 함수를 실행하고 , 그 요소를 모두 더하며 reduce 를  실행
+     */
+
+    Integer collect33 = menu.stream().collect(summingInt(Dish::getCalories));
+    System.out.println("collect33 = " + collect33);
+
+    Double collect34 = menu.stream().collect(averagingInt(Dish::getCalories));
+    System.out.println("collect34 = " + collect34);
+
+    // 모든정보 수집
+    IntSummaryStatistics collect35 = menu.stream().collect(summarizingInt(Dish::getCalories));
+    System.out.println("collect35 = " + collect35);
+
+    //내부적으로 StringBuilder 를 이용해서 문자열을 하나로 만든다
+    String collect36 = menu.stream().map(Dish::getName).collect(joining());
+    System.out.println("collect36 = " + collect36);
+
+    String collect37 = menu.stream().map(Dish::getName).collect(joining(", "));
+    System.out.println("collect37 = " + collect37);
+
+    Optional<String> reduce12 = menu.stream().map(Dish::getName).reduce(
+        (c, d) -> c + "," + d
+    );
+    System.out.println("reduce12 = " + reduce12.get());
+
+    Integer collect38 = menu.stream().collect(reducing(0, Dish::getCalories, (i, j) -> i + j));
+    System.out.println("collect38 = " + collect38);
+
+    Optional<Integer> reduce13 = menu.stream().map(Dish::getCalories).reduce(Integer::sum);
+
+    System.out.println("reduce13 = " + reduce13);
+
+    int sum3 = menu.stream().mapToInt(Dish::getCalories).sum();
+
+    System.out.println("sum3 = " + sum3);
+
+    /**
+     *  아래처럼 여러 방법이있지만 , 결국 Joining을 사용하는것이 가독성 + 성능까지 더 좋다 !!!!
+     */
+    String s = menu.stream().map(Dish::getName).collect(reducing((a, c) -> a + c)).get();
+    String s1 = menu.stream().map(Dish::getName).reduce((z, d) -> z + d).get();
+    String collect39 = menu.stream().collect(reducing("", Dish::getName, (s2, s3) -> s2 + s3));
+    System.out.println("s = " + s);
+    System.out.println("s1 = " + s1);
+    System.out.println("collect39 = " + collect39);
+
+
   }
 
   // Function<Double , Double >  에비해 결과를 박싱하지않아도된다 . double -> Double 박싱과정
@@ -997,7 +1078,7 @@ public class Main {
   public static char findMostRepeatedCharacter(String input) {
     Map<Character, Long> characterCounts = input.chars()
         .mapToObj(c -> (char) c)
-        .collect(Collectors.groupingBy(c -> c, Collectors.counting()));
+        .collect(groupingBy(c -> c, counting()));
 
 
     char result = characterCounts.entrySet().stream()
