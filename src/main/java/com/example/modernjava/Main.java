@@ -1,13 +1,16 @@
 package com.example.modernjava;
 
+import static com.example.modernjava.CaloricLevel.*;
 import static com.example.modernjava.Color.BROWN;
 import static com.example.modernjava.Color.GREEN;
 import static com.example.modernjava.Color.RED;
 import static com.example.modernjava.Dish.Type.FISH;
 import static com.example.modernjava.Dish.Type.MEAT;
 import static com.example.modernjava.Dish.Type.OTHER;
+import static java.util.Arrays.*;
 import static java.util.stream.Collectors.*;
 
+import com.example.modernjava.Dish.Type;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -15,10 +18,13 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.IntSummaryStatistics;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.DoubleFunction;
 import java.util.function.Function;
 import java.util.function.IntFunction;
@@ -33,7 +39,7 @@ public class Main {
 
   public static void main(String[] args) {
 
-    List<Apple> apples = Arrays.asList(new Apple(130, RED, 2), new Apple(170, GREEN, 1),
+    List<Apple> apples = asList(new Apple(130, RED, 2), new Apple(170, GREEN, 1),
         new Apple(190, RED, 5),
         new Apple(110, RED, 6), new Apple(130, GREEN, 3), new Apple(130, BROWN, 7),
         new Apple(170, RED, 8));
@@ -97,7 +103,7 @@ public class Main {
 
     System.out.println("apply1 = " + apply1.getWeight());
 
-    List<Integer> weights = Arrays.asList(3, 2, 10, 7);
+    List<Integer> weights = asList(3, 2, 10, 7);
 
     List<Block> map = map(weights, Block::new);
 
@@ -162,7 +168,7 @@ public class Main {
 
     Function<Integer, Integer> h = f.andThen(g); //  == g(f(x)) 합성함수!!!!
 
-    List<Integer> integers = Arrays.asList(3, 6, 7, 8);
+    List<Integer> integers = asList(3, 6, 7, 8);
 
     List<Integer> collect3 = integers.stream().map(g).collect(toList());
 
@@ -237,7 +243,7 @@ public class Main {
      * 병렬화 : 성능 ++
      */
 
-    List<Dish> menu = Arrays.asList(
+    List<Dish> menu = asList(
         new Dish("pork", false, 800, MEAT),
         new Dish("beef", false, 700, MEAT),
         new Dish("chicken", false, 400, MEAT),
@@ -273,7 +279,7 @@ public class Main {
      *
      */
 
-    List<String> list = Arrays.asList("a", "b", "c");
+    List<String> list = asList("a", "b", "c");
 
     Stream<String> stream = list.stream();
 
@@ -325,14 +331,14 @@ public class Main {
 
     System.out.println(collect7);
 
-    List<Integer> integers1 = Arrays.asList(1, 2, 1, 3, 3, 2, 4);
+    List<Integer> integers1 = asList(1, 2, 1, 3, 3, 2, 4);
 
     integers1.stream()
         .filter(
             integer -> integer % 2 == 0
         ).distinct().forEach(System.out::println);
 
-    List<Dish> dishes = Arrays.asList(
+    List<Dish> dishes = asList(
         new Dish("chicken", false, 120, MEAT),
         new Dish("adasd", false, 150, OTHER),
         new Dish("zxcc", false, 170, OTHER),
@@ -391,7 +397,7 @@ public class Main {
 
     ).collect(toList());
 
-    List<String> list1 = Arrays.asList("hello", "world");
+    List<String> list1 = asList("hello", "world");
 
     List<String[]> collect14 = list1.stream().map(
         s -> s.split("")
@@ -400,7 +406,7 @@ public class Main {
 
     String[] words = {"Goodbye", "World"};
 
-    Stream<String> stream1 = Arrays.stream(words); // 문자열 -> 스트림변환
+    Stream<String> stream1 = stream(words); // 문자열 -> 스트림변환
 
     List<Stream<String>> collect15 = list1.stream().map(w -> w.split("")).map(Arrays::stream)
         .distinct().collect(toList());
@@ -412,7 +418,7 @@ public class Main {
         .flatMap(Arrays::stream).distinct().collect(toList());
     // 생선된 스트림을 하나의 스트림으로 평면화 @@
 
-    List<Integer> num = Arrays.asList(1, 2, 3, 4, 5);
+    List<Integer> num = asList(1, 2, 3, 4, 5);
 
     List<Integer> collect17 = num.stream().map(
         a -> a * a
@@ -420,9 +426,9 @@ public class Main {
 
     System.out.println("collect17 = " + collect17);
 
-    List<Integer> num1 = Arrays.asList(1, 2, 3);
+    List<Integer> num1 = asList(1, 2, 3);
 
-    List<Integer> num2 = Arrays.asList(3, 4);
+    List<Integer> num2 = asList(3, 4);
 
     List<int[]> collect18 = num1.stream().flatMap(
         i -> num2.stream().map(
@@ -567,11 +573,11 @@ public class Main {
     }
     System.out.println(sum);
 
-    IntStream stream2 = Arrays.stream(integers2);
+    IntStream stream2 = stream(integers2);
 
     int sum1 = stream2.sum();
 
-    List<Integer> integers3 = Arrays.asList(4, 5, 3, 9);
+    List<Integer> integers3 = asList(4, 5, 3, 9);
 
     Integer reduce = integers3.stream().reduce(
         0, (a, b) -> a + b
@@ -664,7 +670,7 @@ public class Main {
     Trader alan = new Trader("Alan", "Cambridge");
     Trader brian = new Trader("Brian", "Cambridge");
 
-    List<Transaction> transactions = Arrays.asList(
+    List<Transaction> transactions = asList(
         new Transaction(brian, 2011, 300),
         new Transaction(raoul, 2012, 1000),
         new Transaction(raoul, 2011, 400),
@@ -673,7 +679,7 @@ public class Main {
         new Transaction(alan, 2012, 950)
     );
 
-    List<Trader> traders = Arrays.asList(
+    List<Trader> traders = asList(
         raoul, mario, alan, brian
     );
 
@@ -864,7 +870,7 @@ public class Main {
 
     int[] nums = {1, 2, 3, 4, 7, 11};
 
-    IntStream stream5 = Arrays.stream(nums); // intStream 반환
+    IntStream stream5 = stream(nums); // intStream 반환
 
     System.out.println("stream5 = " + stream5.sum());
 
@@ -884,7 +890,7 @@ public class Main {
 
       uniqueWords =
           lines.flatMap(
-              line -> Arrays.stream(line.split(" ")).distinct()).count();
+              line -> stream(line.split(" ")).distinct()).count();
 
 
     } catch (IOException e) {
@@ -990,8 +996,11 @@ public class Main {
     Comparator<Dish> dishCaloriesComparator = Comparator.comparingInt(Dish::getCalories);
 
     Optional<Dish> collect32 = menu.stream().collect(maxBy(dishCaloriesComparator));
+    Optional<Dish> collect40 = menu.stream().collect(minBy(dishCaloriesComparator));
+
 
     System.out.println("collect32 = " + collect32);
+    System.out.println("collect40 = " + collect40);
 
     /**
      * 요약 연산
@@ -1050,6 +1059,193 @@ public class Main {
     System.out.println("s1 = " + s1);
     System.out.println("collect39 = " + collect39);
 
+    /**
+     * 그룹화
+     *
+     * groupingBy 메서드로 , Type 과 일치하는 요리를 추출할 함수!를 전달 -> '분류함수'
+     */
+
+    Map<Type, List<Dish>> collect41 = menu.stream().collect(groupingBy(Dish::getType));
+
+    System.out.println("collect41 = " + collect41);
+
+    /**
+     * 복잡한 분류기준은 , 메서드참조가 사용불가 Dish 에 따로 메서드가 없다
+     * 람다를 이용한다
+     */
+
+    Map<CaloricLevel, List<Dish>> collect42 = menu.stream().collect(
+        groupingBy(
+            dish -> {
+              if (dish.getCalories() < 400)
+                return DIET;
+              else if (dish.getCalories() <= 700)
+                return NORMAL;
+              else
+                return FAT;
+
+            }
+        )
+    );
+
+    System.out.println("collect42 = " + collect42);
+
+    /**
+     * 위는 요리종류 or 칼로리 기준으로 그룹화
+     *
+     * 요리종류 and 칼로리 두가지조건 기준으로 그룹화
+     */
+
+    // 아래는 Fish 키 자체가 사라진다 , 앞에서 filter 로 인해 .
+
+    Map<Type, List<Dish>> collect43 = menu.stream().filter(dish -> dish.getCalories() > 500)
+        .collect(groupingBy(Dish::getType));
+
+    System.out.println("collect43 = " + collect43);
+
+    /**
+     * Collector 형식의 두번째 인수를 갖도록 , grouping 메서드를 오버로드해서 해결.
+     */
+
+    Map<Type, List<Dish>> collect44 = menu.stream()
+        .collect(groupingBy(Dish::getType, filtering(dish -> dish.getCalories() > 500, toList())));
+    System.out.println("collect44 = " + collect44);
+
+
+    // Dish 리스트를 반환한것과 다르게 , mapping 을 이용해서 문자열 리스트 name 을 반환
+
+    Map<Type, List<String>> collect45 = menu.stream().collect(groupingBy(
+        Dish::getType, mapping(Dish::getName, toList())
+    ));
+
+    System.out.println("collect45 = " + collect45);
+
+    Map<String, List<String>> dishTags = new HashMap<>();
+
+    dishTags.put("pork", asList("greasy", "salty"));
+    dishTags.put("beef", asList("salty", "roasted"));
+    dishTags.put("chicken", asList("fried", "crisp"));
+    dishTags.put("french fries", asList("greasy", "fried"));
+    dishTags.put("rice", asList("light", "natural"));
+    dishTags.put("season fruit", asList("fresh", "natural"));
+    dishTags.put("pizza", asList("tasty", "salty"));
+    dishTags.put("prawns", asList("tasty", "roasted"));
+    dishTags.put("salmon", asList("delicious", "fresh"));
+
+    /**
+     * 두수준의 리스트를 한수준으로 평면화하려면 flatMap 을 수행
+     * flatMapping 으로 중복을 없애기위해 리스트가아닌 집합으로 그룹화
+     */
+
+    Map<Type, Set<String>> collect46 = menu.stream().collect(groupingBy(Dish::getType,
+        flatMapping(dish -> dishTags.get(dish.getName()).stream(), toSet())));
+
+    Map<Type, Set<Stream<String>>> collect47 = menu.stream().collect(groupingBy(Dish::getType,
+        mapping(dish -> dishTags.get(dish.getName()).stream(), toSet())));
+
+    System.out.println("collect46 = " + collect46);
+    System.out.println("collect47 = " + collect47);
+
+
+    /**
+     * 다수준 그룹화
+     * 첫번째수준 GetType & 두번째수준 람다
+     *
+     * 버킷개념
+     * -> 첫번째 groupingBy는 는 각 키의 버킷을만든다.
+     * 준비된 각각의 버킷을 서브스트림 컬렉터로 채워가기를 반복하면서 n수준의 그룹화 달성
+     */
+
+    Map<Type, Map<CaloricLevel, List<Dish>>> collect48 = menu.stream().collect(
+        groupingBy(Dish::getType,
+            groupingBy(dish -> {
+              if (dish.getCalories() <= 400)
+                return DIET;
+              else if (dish.getCalories() < 700)
+                return NORMAL;
+              else
+                return FAT;
+            }
+        ))
+    );
+
+    System.out.println("collect48 = " + collect48);
+
+    /**
+     * 서브그룹으로 데이터수집
+     * 분류함수 한개의 인수를 groupingBy(f) -> groupingBy(f, toList()) 의 축약형 , 그러므로 couting() 가능
+     */
+
+    Map<Type, Long> collect49 = menu.stream().collect(groupingBy(Dish::getType, counting()));
+
+    System.out.println("collect49 = " + collect49);
+
+    Map<Type, Optional<Dish>> collect50 = menu.stream().collect(
+        groupingBy(Dish::getType, maxBy(Comparator.comparingInt(Dish::getCalories)))
+    );
+
+    System.out.println("collect50 = " + collect50);
+
+    // 위는 , Optional 로 감쌀 필요가 없다.  andThen -> finisher
+
+    /**
+     * 218
+     * 중첩연산 과정 , groupingBy -> CollectingAndThen -> maxBy (reducing Collector) -> Optional::get
+     */
+    Map<Type, Dish> collect51 = menu.stream().collect(
+        groupingBy(Dish::getType,
+            collectingAndThen(maxBy(Comparator.comparingInt(Dish::getCalories)), Optional::get))
+    );
+    System.out.println("collect51 = " + collect51);
+
+    /**
+     * 같은그룹으로 분류된 모든요소에 리듀싱작업수행
+     * groupingBy에 두번째 인수로 전달할 컬렉터를 사용
+     */
+
+    Map<Type, Integer> collect52 = menu.stream()
+        .collect(groupingBy(Dish::getType, summingInt(Dish::getCalories)));
+
+    System.out.println("collect52 = " + collect52);
+
+
+
+    /**
+     * mapping 은 입력요소를 누적전 매핑함수를 적용해서 다양한 형식의 객체를 주어진 형식의 컬렉터에 맞게 변환하는 역할.
+     * 스트림의 인수를 변환하는 함수와 , 변환함수의 격과 객체를 누적하는 컬렉터를 인수로 받는다
+     */
+
+    Map<Type, Set<CaloricLevel>> collect53 = menu.stream().collect(groupingBy(
+        Dish::getType, mapping(
+            dish -> {
+              if (dish.getCalories() <= 400)
+                return DIET;
+              else if (dish.getCalories() < 700)
+                return NORMAL;
+              else
+                return FAT;
+            }, toSet()
+        )
+    ));
+
+    System.out.println("collect53 = " + collect53);
+
+    // + Set 형식을 정해줄수있다
+
+    Map<Type, HashSet<CaloricLevel>> collect54 = menu.stream().collect(
+        groupingBy(Dish::getType, mapping(
+            dish -> {
+              if (dish.getCalories() < 400)
+                return DIET;
+              else if (dish.getCalories() <= 700)
+                return NORMAL;
+              else
+                return FAT;
+            }, toCollection(HashSet::new)
+        ))
+    );
+    System.out.println("collect54 = " + collect54);
+
 
   }
 
@@ -1093,7 +1289,7 @@ public class Main {
 
   public static int solution(int[][] targets) {
     // 폭격 미사일들을 끝 지점을 기준으로 오름차순으로 정렬합니다.
-    Arrays.sort(targets, Comparator.comparingInt(a -> a[1]));
+    sort(targets, Comparator.comparingInt(a -> a[1]));
 
     for (int[] target : targets) {
       for (int i : target) {
@@ -1103,7 +1299,7 @@ public class Main {
 
 
     // 요격 미사일 수를 계산합니다.
-    int interceptCount = (int) Arrays.stream(targets)
+    int interceptCount = (int) stream(targets)
         .filter(target -> target[0] > getPreviousMaxX(targets))
         .count();
 
@@ -1112,7 +1308,7 @@ public class Main {
 
   private static int getPreviousMaxX(int[][] targets) {
     // 이전에 처리한 폭격 미사일들 중 가장 큰 x 좌표를 구합니다.
-    return Arrays.stream(targets)
+    return stream(targets)
         .mapToInt(target -> target[1])
         .max()
         .orElse(-1);
