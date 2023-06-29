@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.BiFunction;
+import java.util.function.BinaryOperator;
 import java.util.function.DoubleFunction;
 import java.util.function.Function;
 import java.util.function.IntFunction;
@@ -1228,7 +1230,21 @@ public class Main {
         )
     ));
 
+    Map<Type, Map<CaloricLevel, List<Dish>>> collect55 = menu.stream()
+        .collect(groupingBy(Dish::getType, groupingBy(dish -> {
+          if (dish.getCalories() <= 400)
+            return DIET;
+          else if (dish.getCalories() < 700)
+            return NORMAL;
+          else
+            return FAT;
+        })));
+
+
     System.out.println("collect53 = " + collect53);
+    System.out.println("collect55 = " + collect55);
+
+
 
     // + Set 형식을 정해줄수있다
 
@@ -1244,7 +1260,115 @@ public class Main {
             }, toCollection(HashSet::new)
         ))
     );
+
+
     System.out.println("collect54 = " + collect54);
+
+
+
+    /**
+     * 분할
+     * 분할함수라 불리는 프리디케이트를 분류함수로 사용하는 특수한 그룹화기능
+     * 분할함수는 불리언을 반환 , 맵의 키형식은 Boolean , 결과적으로 그룹회맵은 최대 두개의 그룹으로 분류
+     */
+
+    Map<Boolean, List<Dish>> collect56 = menu.stream().collect(groupingBy(Dish::isVegetartian));
+    System.out.println("collect56 = " + collect56);
+
+    Map<Boolean, List<Dish>> collect57 = menu.stream().collect(partitioningBy(Dish::isVegetartian));
+    System.out.println("collect57 = " + collect57);
+
+    List<Dish> dishes1 = collect56.get(true);
+    System.out.println("dishes1 = " + dishes1);
+
+
+    // 분할함수 + 두번째컬렉터
+
+    Map<Boolean, Map<Type, List<Dish>>> collect58 = menu.stream()
+        .collect(partitioningBy(Dish::isVegetartian, groupingBy(Dish::getType)));
+
+    System.out.println("collect58 = " + collect58);
+
+    Map<Boolean, Dish> collect59 = menu.stream().collect(partitioningBy(Dish::isVegetartian,
+        collectingAndThen(maxBy(Comparator.comparingInt(Dish::getCalories)), Optional::get)));
+
+    System.out.println("collect59 = " + collect59);
+
+
+    // 1분할 -> isVegetartian ?
+    // 2분할 -> 내부에서 , 다시 true false
+
+    Map<Boolean, Map<Boolean, List<Dish>>> collect60 = menu.stream().collect(
+        partitioningBy(Dish::isVegetartian, partitioningBy(dish -> dish.getCalories() > 500)));
+
+    System.out.println("collect60 = " + collect60);
+
+    Map<Boolean, Long> collect61 = menu.stream().collect(
+        partitioningBy(Dish::isVegetartian, counting())
+    );
+
+    System.out.println("collect61 = " + collect61);
+
+
+
+
+
+    /**
+     * about Collector
+     * <T,A,R>
+     *   T: 수집될항목의 제네릭형식
+     *   A: 누적자 , 중간결과를 누적하는 객체형식
+     *   R: 수집 연산결과의 객체의형식 ( 대게는 컬렉션 )
+     */
+
+    /**
+     * 새로운 결과 컨테이터 만들기
+     * 1. Supplier<A> supplier()
+     * 빈결과로 이루어진  supplier 를 반환
+     * 수집과정에서 빈 누적자 인스턴스를 만드는 파라미터가 없는 함수
+     */
+
+//    Supplier<List<T>> supplier(){ return;
+//      ArrayList::new;}
+
+    /**
+     * 결과 컨테이너에 요소 추가하기
+     * 2. accumulator
+     * 리듀싱연산을 수행하는 함수를 반환 , n번째 요소를 탐색할때 두인수 즉 누적자!( 스트림의 n-1번 항목을 수집한상태와 )n번재 요소를 함수에 적용
+     * 반환값은 void , 요소를 탐색하면서 적용하는 함수에의해 누적자 내부상태가 바뀌므로 어떤값인지 단정할수없다
+     *
+     */
+
+//    BiFunction<List<T> , T> accumulator(){ return (list, item) -> list.add(item) ;}
+
+    /**
+     * 최종 변환값을 결과 컨테이너로 적용  ex> and then finisher
+     * 3. finisher
+     * 스트림 탐색을 끝내고 누적자 객체를 최종 결과로 변환하면서 누적과정을 끝낼때 호추랄 함수를 반환해야한다
+     */
+
+
+    /**
+     * 두 결과 컨테이너 병합
+     * 4. combiner
+     * 스트림의 서로다른 서브파트를 병렬로 처리할때 누적자가 이결과를 어떻게 처리할지 정의
+     * 스트림의 리듀싱을 병렬로 수헹
+     */
+
+//    BinaryOperator<List<T>> combiner(){
+//      return (list1 , list2) -> { list1.addAll(list2)};
+//      return list1;
+//    }
+
+    List<Dish> collect62 = menu.stream().collect(new CustomToListCollector<Dish>());
+
+    // == 아래 기존의것과 차이는 , new 로 인스턴스화 한다는점.
+
+    List<Dish> collect63 = menu.stream().collect(toList());
+
+    System.out.println("collect62 = " + collect62);
+    System.out.println("collect63 = " + collect63);
+
 
 
   }
