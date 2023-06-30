@@ -25,17 +25,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.BiFunction;
-import java.util.function.BinaryOperator;
 import java.util.function.DoubleFunction;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.IntSupplier;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import org.springframework.boot.SpringApplication;
 
 public class Main {
 
@@ -1371,7 +1367,58 @@ public class Main {
 
 
 
+
+
+
+    /**
+     * 병렬화
+     * 자바7이전  , 데이터 컬렉션 병렬처리가 힘들다 -> 자바 7이후 포크/조인 프레임워크 기능제공
+     * 스트림 -> 쉽게 병렬화  , 멀티코어활용 파이프라인 연산
+     *
+     * Parallel stream -> 스트림요소를 여러 청크로 분할해 각각 스레드에 할당
+     *
+     * parallel -> filter -> sequential -> map -> parallel  -> reduce 연산마다 병렬 , 순차 바꾸기가능
+     * 최총 호출된 메서드가 전체파이프라인에 영향을 미친다
+     *
+     * 병렬실행시 스레드는 어디서생성 , 몇개나생성 ? -> 병렬스트림은
+     *
+     */
+
+    long l = parallelSum(100000L);
+    System.out.println("l = " + l);
+
   }
+
+  public static long parallelSum(long n) {
+    return Stream.iterate(1L, i -> i + 1).limit(n).parallel().reduce(0L, Long::sum);
+  }
+
+
+  /**--------------------------------------------------------------------------------------------------------------------------------------------
+   * 만약 n이 커진다면 , 병렬로 처리하는것이 best
+   * 결과 변수는 어떻게 동기화?
+   * 몇개의 스레드를 사용하고 ?
+   * 숫자는 어떻게생성하고  ,생성된 숫자는 어떻게 더할까 ?
+   * ->
+   * 병렬스트림으로 한방에 해결이 가능하다 .
+   */
+
+  public static long sequentialSum(long n) {
+    return Stream.iterate(1L, i -> i + 1).limit(n).reduce(0L, Long::sum);
+  }
+
+  public static long iterativeSum(long n
+  ) {
+    long result = 0 ;
+    for (long i = 1L; i <= n; i++) {
+      result += i;
+    }
+    return result;
+  }
+
+  /**
+   * --------------------------------------------------------------------------------------------------------------------------------------------
+   */
 
   // Function<Double , Double >  에비해 결과를 박싱하지않아도된다 . double -> Double 박싱과정
   public static double integrate(DoubleFunction<Double> f, double a, double b) {

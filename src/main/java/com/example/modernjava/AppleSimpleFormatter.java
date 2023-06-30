@@ -1,7 +1,5 @@
 package com.example.modernjava;
 
-import org.springframework.stereotype.Component;
-
 public class AppleSimpleFormatter implements AppleFormatter{
 
   @Override
