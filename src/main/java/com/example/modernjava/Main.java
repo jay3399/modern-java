@@ -31,8 +31,8 @@ import java.util.function.IntFunction;
 import java.util.function.IntSupplier;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 import java.util.stream.Stream;
-
 public class Main {
 
   public static void main(String[] args) {
@@ -1380,7 +1380,7 @@ public class Main {
      * parallel -> filter -> sequential -> map -> parallel  -> reduce 연산마다 병렬 , 순차 바꾸기가능
      * 최총 호출된 메서드가 전체파이프라인에 영향을 미친다
      *
-     * 병렬실행시 스레드는 어디서생성 , 몇개나생성 ? -> 병렬스트림은
+     * 병렬실행시 스레드는 어디서생성 , 몇개나생성 ? -> 병렬스트림은 내부적으로 조인/포크 프레임워크 사용
      *
      */
 
@@ -1389,9 +1389,64 @@ public class Main {
 
   }
 
+  /**
+   * 문제점 , 박싱 -> 언박싱 -> 박싱 과정에서 손실이 발생
+   * 반복작업은 병렬로 수행할수있는 독립단위로 나누기가 어려움 -> iterate 는 이전 연산결과에따라 다음함수의 입력값이 달라지기때문에 청크 분할이 어렵다 리듀싱을 하는
+   * 시점에 , 전체 숫자리스트가 준비되지 않아 스트림을 병렬로 처리할수있도록 청크 분할이 불가
+   */
   public static long parallelSum(long n) {
     return Stream.iterate(1L, i -> i + 1).limit(n).parallel().reduce(0L, Long::sum);
   }
+
+
+
+  /**
+   *  기본형 long 을 그대로 사용하기떄문에 박싱과정 오버헤드 x
+   *  rangedClosed 는 쉽겝 청크분할할수있는 숫자범위를 생산  , 1-20 범위를 1 -5  , 6 - 10  , 11-16, 16-20분할 -> 병렬 가능
+   */
+
+
+  /**
+   * 병렬화를 사용하지 않고 기본형특화스트림을사용해, 박싱 언박싱과정을 없애는것만으로도 엄청난 성능향상이 일어난다
+   * 적절한 자료구조를 선택하는것만으로도 좋은 성능을 내는것이 가능하다. !
+   */
+  public static long rangedSum() {
+    return LongStream.rangeClosed(1, 10_000_000L).reduce(0L, Long::sum);
+  }
+
+
+
+  /**
+   * 완벽한 멀티코어 사용
+   *
+   * 하지만 병렬화가 완전한 공짜는 아니고 , 병렬화를 이용하려면 스트림을 재귀적으로 분할하고 , 각 서브스트림을 각각다른 스레드의 리듀싱연산으로 할당 , 그리고이것을 하나의 값으로 합친다
+   * 멀티코어간에 데이터 이동은 생각보다 비싸다
+   * -> 결론은 코어간 데이터전송시간보다 훨씬 오래 걸리는 작업만 병렬로 다른코어에서 실행하도록 하는것이 맞다
+   */
+  public static long rangedSumWithParallel() {
+    return LongStream.rangeClosed(1, 10_000_000L).parallel().reduce(0L, Long::sum);
+  }
+
+
+  /**
+   *  본질적으로 순차실행이다
+   *  특히@ 병렬 사용시  total 에 접근할떄 다수에 스레드에서 동시에 접근하는 레이스컨디션! 문제가 나타난다
+   *  결과를 실행시 제대로된 결과가 나오지도 않는다
+   *  결국 스레드에서 공유하는 객체의 상태를 바꾸는! forEach 블록 내부에서 add 메서드를 호출하면서 문제가 발생한다
+   *
+   *  결론 :
+   *  병렬계산에서는 공유된 가변상태!를 피해야한다 !!!!
+   */
+  public long sideEffectSum() {
+    Accumlator accumlator = new Accumlator();
+    LongStream.rangeClosed(1, 10_000_000L).parallel().forEach(accumlator::add);
+    return accumlator.total;
+  }
+
+
+
+
+
 
 
   /**--------------------------------------------------------------------------------------------------------------------------------------------

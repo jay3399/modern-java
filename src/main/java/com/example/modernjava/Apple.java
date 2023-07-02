@@ -1,7 +1,5 @@
 package com.example.modernjava;
 
-
-
 public class Apple {
 
   private int weight;
