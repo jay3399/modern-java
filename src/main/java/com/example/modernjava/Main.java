@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinTask;
 import java.util.function.DoubleFunction;
 import java.util.function.Function;
 import java.util.function.IntFunction;
@@ -146,7 +148,6 @@ public class Main {
         .collect(toList());
 
     for (Apple apple : apples) {
-      // 일반적으로는 test 메서드를 써야하지만  , 스트림 filter 를쓰면 그럴필요가 없다 . @@@@@@@
 
       if (redApple.test(apple)) {
 
@@ -291,7 +292,7 @@ public class Main {
 
     List<String> name = new ArrayList<>();
 
-    // 컬렉션 -> 반복자사용 ,  사용자가 직접 요소를 반복 .  -> 외부반복
+    // 컬렉션 -> 반복자사용 ,  사용자가 직접 요소를 반복 for  -> 외부반복
     for (Dish dish : menu) {
       name.add(dish.getName());
     }
@@ -392,7 +393,6 @@ public class Main {
         Dish::getName
     ).map(
         String::length
-
     ).collect(toList());
 
     List<String> list1 = asList("hello", "world");
@@ -448,12 +448,6 @@ public class Main {
       }
     }
 
-//		char addddsssscccccc = findMostRepeatedCharacter("aaabbbccc");
-//		System.out.println("addddsssscccccc = " + addddsssscccccc);
-//
-//		int[][] targets = {{1, 2}, {3, 1}, {6, 3}, {9, 7}};
-//
-//		solution(targets);
 
     /**
      * 쇼트서킷 기법
@@ -484,73 +478,7 @@ public class Main {
         Dish::isVegetartian
     ).findAny().ifPresent(dish -> System.out.println(dish.getName()));
 
-//		String[] input = new String[]{
-//				"1622025201 REQUEST 10001 192.168.0.1",
-//				"1622025202 REQUEST 10002 192.168.0.2",
-//				"1622025203 REQUEST 10003 192.168.0.1",
-//				"1622025211 RESPONSE 10003",
-//				"1622025212 RESPONSE 10002",
-//				"1622025213 RESPONSE 10001",
-//				"1622025221 REQUEST 10004 192.168.0.2",
-//				"1622025223 REQUEST 10005 192.168.0.2",
-//				"1622025230 RESPONSE 10004",
-//				"1622025231 REQUEST 10006 192.168.0.3",
-//				"1622025236 RESPONSE 10006"
-//		};
 
-//		Map<String, Integer> ipRequestCount = new HashMap<>();
-//
-//		for (String log : input) {
-//			String[] parts = log.split(" ");
-//			String logType = parts[1];
-//
-//			if (logType.equals("REQUEST")) {
-//				String ipAddress = parts[3];
-//				ipRequestCount.put(ipAddress, ipRequestCount.getOrDefault(ipAddress, 0) + 1);
-//			}
-//		}
-//
-//		for (Map.Entry<String, Integer> entry : ipRequestCount.entrySet()) {
-//			System.out.println("(" + entry.getKey() + ", " + entry.getValue() + ")");
-//		}
-
-//		Map<String, Long> ipRequestCount2 = Arrays.stream(input)
-//				.filter(log -> log.split(" ")[1].equals("REQUEST"))
-//				.map(log -> log.split(" ")[3])
-//				.collect(Collectors.groupingBy(ip -> ip, Collectors.counting()));
-//
-//		ipRequestCount2.forEach((ip, count) -> System.out.println("(" + ip + ", " + count + ")"));
-
-//
-//		Map<String, Long> requestTimes = new HashMap<>();
-//		Map<String, Long> responseTimes = new HashMap<>();
-//
-//		for (String log : input) {
-//			String[] parts = log.split(" ");
-//			long timestamp = Long.parseLong(parts[0]);
-//			String logType = parts[1];
-//			String requestId = parts[2];
-//
-//			if (logType.equals("REQUEST")) {
-//				requestTimes.put(requestId, timestamp);
-//			} else if (logType.equals("RESPONSE")) {
-//				responseTimes.put(requestId, timestamp);
-//			}
-//		}
-//
-//		for (Map.Entry<String, Long> entry : requestTimes.entrySet()) {
-//			String requestId = entry.getKey();
-//			long requestTime = entry.getValue();
-//			long responseTime = responseTimes.getOrDefault(requestId, -1L);
-//
-//			if (responseTime != -1) {
-//				long elapsedTime = responseTime - requestTime;
-//				System.out.println("(" + requestId + ", " + requestTime + ", " + elapsedTime + ")");
-//			} else {
-//				System.out.println("(" + requestId + ", " + requestTime + ", FAIL)");
-//			}
-//		}
-//	}
 
     /**
      * findFirst vs findAny  , 요소의 반환순서가 상관없으면 findAny
@@ -651,10 +579,23 @@ public class Main {
 
     System.out.println("collect20 = " + collect20);
 
+    /**
+     * 필터로모두 걸러지고 Map 으로 가는게 아닌 ,
+     * 순차적으로 진행된다 ,
+     * filter ->true -> map , filter -> false -> filter -> false -> filter -> true -> filter -> true ....
+     */
+
+
     List<Double> collect21 = menu.stream().filter(
-        m -> m.getCalories() > 500
+        m ->{
+          System.out.println("check= " + m);
+          return m.getCalories() > 500;
+        }
     ).map(
-        m -> m.getCalories() * 0.3
+        m ->{
+          System.out.println("filter= " + m);
+          return m.getCalories() * 0.3;
+        }
     ).collect(toList());
 
     System.out.println("collect21 = " + collect21);
@@ -682,9 +623,15 @@ public class Main {
     );
 
     List<Transaction> collect22 = transactions.stream().filter(
-            transaction -> transaction.getYear() == 2011
-        ).sorted(Comparator.comparing(transaction -> transaction.getValue()))
+            transaction -> {
+              System.out.println("transaction = " + transaction.getYear());
+              return transaction.getYear() == 2011;
+            }
+        ).sorted(Comparator.comparing(transaction ->
+            transaction.getValue()))
         .collect(toList());
+
+
 
     System.out.println("collect22 = " + collect22);
 
@@ -757,6 +704,7 @@ public class Main {
     Optional<Transaction> max = transactions.stream()
         .max(Comparator.comparing(Transaction::getValue));
 
+
     System.out.println("reduce7 = " + reduce7);
     System.out.println("max = " + max);
 
@@ -787,6 +735,7 @@ public class Main {
     int sum2 = transactions.stream().mapToInt(
         Transaction::getValue
     ).sum();
+
 
     System.out.println("reduce10 = " + reduce10);
     System.out.println("reduce11 = " + reduce11);
@@ -883,14 +832,12 @@ public class Main {
 
     long uniqueWords = 0;
 
-    try (Stream<String> lines = Files.lines(
-        Paths.get("/Users/jay/Downloads/test/test1.txt"), Charset.defaultCharset())) {
-
+    try (Stream<String> lines = Files.lines(Paths.get("/Users/jay/Downloads/test/test1.txt"), Charset.defaultCharset()))
+    {
       uniqueWords =
           lines.flatMap(
-              line -> stream(line.split(" ")).distinct()).count();
-
-
+              line -> stream(line.split(" ")).distinct()
+          ).count();
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -1324,17 +1271,12 @@ public class Main {
      * 수집과정에서 빈 누적자 인스턴스를 만드는 파라미터가 없는 함수
      */
 
-//    Supplier<List<T>> supplier(){ return;
-//      ArrayList::new;}
-
     /**
      * 결과 컨테이너에 요소 추가하기
      * 2. accumulator
      * 리듀싱연산을 수행하는 함수를 반환 , n번째 요소를 탐색할때 두인수 즉 누적자!( 스트림의 n-1번 항목을 수집한상태와 )n번재 요소를 함수에 적용
      * 반환값은 void , 요소를 탐색하면서 적용하는 함수에의해 누적자 내부상태가 바뀌므로 어떤값인지 단정할수없다
-     *
      */
-
 //    BiFunction<List<T> , T> accumulator(){ return (list, item) -> list.add(item) ;}
 
     /**
@@ -1342,7 +1284,6 @@ public class Main {
      * 3. finisher
      * 스트림 탐색을 끝내고 누적자 객체를 최종 결과로 변환하면서 누적과정을 끝낼때 호추랄 함수를 반환해야한다
      */
-
 
     /**
      * 두 결과 컨테이너 병합
@@ -1368,8 +1309,6 @@ public class Main {
 
 
 
-
-
     /**
      * 병렬화
      * 자바7이전  , 데이터 컬렉션 병렬처리가 힘들다 -> 자바 7이후 포크/조인 프레임워크 기능제공
@@ -1387,12 +1326,93 @@ public class Main {
     long l = parallelSum(100000L);
     System.out.println("l = " + l);
 
+    List<String> collect64 = dishes.stream().map(dish -> {
+      System.out.println("adsd :" + dish.getName());
+      return dish.getName();
+    }).filter(s6 -> {
+      System.out.println("filter :"+ s6);
+      return s6.length() < 5;
+    }).collect(toList());
+
+    System.out.println("collect64 = " + collect64);
+
+    /**----------------------------------------------------------------------------------------------------------------
+     * 무조건 병렬스트림 ?
+     * 언제나 병렬이 순차보다 빠른것 아니고 , 과정자체가 투명하지 않을수있다 . -> 직접 벤치 측정해본다.
+     * 박싱 <-> 언박싱과정에서 생각보다 비용이 많이 소모된다 -> 일반적으로 기본형특화스트림이 좋다.
+     * 병렬이 더 성능이떨어지는연산 -> limit, findFirst 처럼 요소의 순서에 의존하는 연산은 비싼 비용이든다.
+     * but , findAny 는 요소의 순서에 상관없이 연산하므로 findFirst 보다 낫다.
+     * unordered 로 비정렬 스트림을 얻고 , 요소의순서가 상과넚다면 , 비정렬스트림에 limit 를 호출하는것이 효과적.
+     * 전체 파이프라인 연산비용을 고려해라 , 요소수가 N , 하나처리하는데  비용 Q -> 전체처리비용 -> N * Q , if Q++ -> 전체비용 ++ -> 병렬사용
+     * 소량데이터는 당연히 병렬스트림이 도움되지않는다.
+     *
+     * 자료구조의 적절성
+     * ex> LinkedList 는 분할하려면 모든요소를 탐색 , but ArrayList 는 요소탐색하지않고 분할가능 , ArrayList 가 더 효율적이다 , or Range 팩터리메서드로만든 기본형스트림도 쉽게 분해가능
+     *
+     * 스트림특성 , 파이프라인의 죽안연산이 스트림의 특성을 어떻게 바꾸냐에 따라 분해과정 성능이 달라진다
+     * ex) sized 스트림은 "정확히 같은크기의" 두스트림으로 분할 할 수 있으므로 , 효과적인 병렬처리가 가능하지만
+     * 필터연산이 있으면 , 스트림 길이 예측자체가 불가능하므로 효과적으로 스트림병렬 처리가 안된다. ( + iterate vs IntStream.range )
+     *
+     * 분해성 -
+     * ArrayList , IntStream.range > HashSet , TreeSet  >>>> LinkedList , Iterate
+     *----------------------------------------------------------------------------------------------------------------
+     */
+
+
+
+    /**
+     * Fork Join
+     *
+     * 기대성능 안나온다,
+     * join 호출시  , 테스크가 생산하는 결과를 준비될떄까지 호출자를 블록한다.
+     * 서브태스크가 모두 시작된 다음에 , join 을 호출해야한다.
+     * 각각의 서브태스크가 , 다른태스크가 끝나길 기다리는일이 발생하며 일반 순차알고리즘보다 더 복잡한 프로그래밈이 되어버린다.
+     * RecursiveTask 내에사는 invoke 메서드를 사용하지말고 ,대신 compute 나 fork 메서드를 직접 호출할수있다.
+     * 순차코드에서 병렬계산을 시작할때만 invoke 를 사용한다
+     * 서브태스크에서 fork 메서드를 호출해서 ForkJoinPool 의 일정을 조절할수있다 , 오버헤드를 피할수있다 , P260
+     * 포크조인프레임워크 이용하는 병렬계산은 디버깅이 어려움.
+     *
+     */
+
+    long l1 = forkJoinSum(10_000_000L);
+    System.out.println("l1 = " + l1);
+
+
+
+
+
+    /**
+     * 작업 훔치기
+     * 서브태스크를 더 분할할것인지 결정할 기준을 어떻게 정할까 ?
+     *
+     * 코어개수와 관계없이 , " 적절한크기로 분할된 많은 태스크를 포킹하는게 바람직하다 "
+     * ForkJoin 의 작업훔치기 기법은 , 모든스레드를 공정하게 분배  -> P262
+     * but ? 앞에서는 , 분할로직 개발않고 , 병렬 스트림이용이 가능하다
+     * 자동 스트림분할기법 -> Spliterator
+    */
+
+
+
+
+
+    /**
+     * Spliterator
+     * 분할할수있는 반복자.
+     */
+
+
+
+
+
+
+
+
   }
 
   /**
    * 문제점 , 박싱 -> 언박싱 -> 박싱 과정에서 손실이 발생
-   * 반복작업은 병렬로 수행할수있는 독립단위로 나누기가 어려움 -> iterate 는 이전 연산결과에따라 다음함수의 입력값이 달라지기때문에 청크 분할이 어렵다 리듀싱을 하는
-   * 시점에 , 전체 숫자리스트가 준비되지 않아 스트림을 병렬로 처리할수있도록 청크 분할이 불가
+   * 반복작업은 병렬로 수행할수있는 독립단위로 나누기가 어려움 -> iterate 는 이전 연산결과에따라 다음함수의 입력값이 달라지기때문에 청크 분할이 어렵다
+   * 리듀싱을 하는시점에 , 전체 숫자리스트가 준비되지 않아 스트림을 병렬로 처리할수있도록 청크 분할이 불가
    */
   public static long parallelSum(long n) {
     return Stream.iterate(1L, i -> i + 1).limit(n).parallel().reduce(0L, Long::sum);
@@ -1434,15 +1454,13 @@ public class Main {
    *  결과를 실행시 제대로된 결과가 나오지도 않는다
    *  결국 스레드에서 공유하는 객체의 상태를 바꾸는! forEach 블록 내부에서 add 메서드를 호출하면서 문제가 발생한다
    *
-   *  결론 :
-   *  병렬계산에서는 공유된 가변상태!를 피해야한다 !!!!
+   *  결론 : 병렬계산에서는 공유된 가변상태!를 피해야한다 !!!!
    */
   public long sideEffectSum() {
     Accumlator accumlator = new Accumlator();
     LongStream.rangeClosed(1, 10_000_000L).parallel().forEach(accumlator::add);
     return accumlator.total;
   }
-
 
 
 
@@ -1469,6 +1487,15 @@ public class Main {
       result += i;
     }
     return result;
+  }
+
+
+  public static long forkJoinSum(long n) {
+    long[] numbers = LongStream.rangeClosed(1, n).toArray();
+
+    ForkJoinTask<Long> task = new ForkJoinSumCalculator(numbers);
+
+    return new ForkJoinPool().invoke(task);
   }
 
   /**
