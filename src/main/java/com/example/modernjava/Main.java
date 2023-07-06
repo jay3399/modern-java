@@ -32,6 +32,7 @@ import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.IntSupplier;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
@@ -1379,8 +1380,6 @@ public class Main {
 
 
 
-
-
     /**
      * 작업 훔치기
      * 서브태스크를 더 분할할것인지 결정할 기준을 어떻게 정할까 ?
@@ -1400,7 +1399,73 @@ public class Main {
      * 분할할수있는 반복자.
      */
 
+    String sentence = "ase asd asdadasdadasd asdada zzzz";
 
+    int i = countWord(sentence);
+
+
+    System.out.println("i = " + i);
+
+    char[] chars = sentence.toCharArray();
+
+    boolean whitespace = Character.isWhitespace(chars[6]);
+    System.out.println("whitespace = " + whitespace);
+
+
+    // 디폴트메서드로 , 해당배열의 위치를 int 로 가져온뒤 , 다시 오브젝트로매핑
+    Stream<Character> characterStream = IntStream.range(0, sentence.length())
+        .mapToObj(sentence::charAt);
+
+//    int i1 = countWords(characterStream);
+//    System.out.println("i1 = " + i1);
+
+    /**
+     * 병렬로 실행시 값이 달라진다. 문자열을 임의의 위치에서 둘로 나누다보니 예상치못하게 하나의단어를 둘로 계산하는 상황이 발생할수있다
+     * -> Spliterator 인터페이스를 이용해서 해결이 가능하다 -> P269 좀 어렵다
+     */
+//    int i1 = countWords(characterStream.parallel());
+//    System.out.println("i1 = " + i1);
+
+
+
+
+
+
+
+    /**
+     *  컬렉션 Api
+     */
+
+    List<String> strings = new ArrayList<>();
+    strings.add("asdadad");
+    strings.add("zzz");
+    strings.add("zfafaf");
+
+    /**
+     * 작은 컬렉션 객체를 쉽게만들수있게 제공
+     * 고정크기 리스트이므로 , 요소를 갱신할순있지만 요소를 추가하거나 삭제는 불가
+     */
+//
+    List<String> list2 = asList("asdasd", "zzz", "asdadad");
+
+    //HashSet
+    //두방법 모두 매끄럽지못하다 , 내부적으로 불필요한 객체 할당을 필요로하고 결과를 변환할수있는 집합이다
+    Set<String> freinds = new HashSet<>(Arrays.asList("aszz", "adsasdad", "asdasdad"));
+
+    Set<String> collect65 = Stream.of("adasdsa", "adasdasdasda", "asdadad").collect(toSet());
+
+
+
+
+    // List
+
+    List<String> asda = List.of("asda", "zzdasd", "Asdad");
+    System.out.println("asda = " + asda);
+
+
+//    asda.add("zdadaasd"); -> 위는 변경할수없는 리스트 오류난다
+
+    asda.set(0, "azzz");
 
 
 
@@ -1408,6 +1473,9 @@ public class Main {
 
 
   }
+
+
+
 
   /**
    * 문제점 , 박싱 -> 언박싱 -> 박싱 과정에서 손실이 발생
@@ -1497,6 +1565,36 @@ public class Main {
 
     return new ForkJoinPool().invoke(task);
   }
+
+
+  public static int countWord(String s) {
+    int counter = 0;
+    boolean lastSpace = true;
+
+    for (char c : s.toCharArray()) {
+      if (Character.isWhitespace(c)) {
+        lastSpace = true;
+      } else {
+        if(lastSpace) counter++;
+        lastSpace = false;
+      }
+    }
+    return counter;
+  }
+
+
+  public static int countWords(Stream<Character> stream) {
+    WordCounter reduce = stream.reduce(new WordCounter(0, true), WordCounter::accumulate,
+        WordCounter::combine);
+
+    return reduce.getCounter();
+
+  }
+
+
+
+
+
 
   /**
    * --------------------------------------------------------------------------------------------------------------------------------------------
