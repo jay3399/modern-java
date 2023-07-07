@@ -8,6 +8,7 @@ import static com.example.modernjava.Dish.Type.FISH;
 import static com.example.modernjava.Dish.Type.MEAT;
 import static com.example.modernjava.Dish.Type.OTHER;
 import static java.util.Arrays.*;
+import static java.util.Map.entry;
 import static java.util.stream.Collectors.*;
 
 import com.example.modernjava.Dish.Type;
@@ -1447,6 +1448,8 @@ public class Main {
      */
 //
     List<String> list2 = asList("asdasd", "zzz", "asdadad");
+    list2.set(1, "change");
+    System.out.println("list2 = " + list2);
 
     //HashSet
     //두방법 모두 매끄럽지못하다 , 내부적으로 불필요한 객체 할당을 필요로하고 결과를 변환할수있는 집합이다
@@ -1465,7 +1468,57 @@ public class Main {
 
 //    asda.add("zdadaasd"); -> 위는 변경할수없는 리스트 오류난다
 
-    asda.set(0, "azzz");
+//    asda.set(0, "azzz");
+
+
+
+
+    /**
+     * ListOf 와 비슷한 방법으로 , 바꿀수없는 집합 만들기
+     * Arrays.asList 는 Set 바꿀수있는방법이 없기떄문에 -> 위와같은 방법을 쓰지만 , SetOf 를 이용하면 가능
+     * 추가는 불가하다
+     */
+
+    Set<String> adssda = Set.of("adssda", "zzzz", "asdad", "zzzzddd");
+
+
+    // 10개 이하일시 @@@ 만 사용한다 @@@@@@
+
+    Map<String, Integer> age = Map.of("jay", 20, "asddas", 20, "asdadzzz", 3333);
+    System.out.println("age = " + age);
+
+
+    // 10개 이상일시
+    Map<String, Integer> age2 = Map.ofEntries(entry("jay", 20), entry("kay", 20),
+        entry("zzdads", 30));
+
+    System.out.println("age2 = " + age2);
+    System.out.println("jay = " + age2.get("jay"));
+
+    /**
+     * removeIf , replaceAll
+     *
+     * 호출한 컬렉션 자체를 바꾼다 , 새로운결과를 만드는 스트림과는 달리 , 기존 컬렉션을 바꾸는것.
+     * 컬레션 바꾸는동작은 에러를 유발한다.
+     *
+     * ex) foreach + remove 를 사용할때 , foreach 는 내부적으로 iterator 객체를 사용 + Collection 객체의 remove 를 호출
+     * 반복하면서 별도의 두 객체에서 컬렉션을 바꿔버린다
+     * -> 해결하려면 , iterator 객체를 명시적으로 사용해야한다 .
+     *
+     * removeIf 를 사용시 버그없이 쉽게 가능하다.
+     *
+     */
+
+
+
+
+
+
+
+
+
+
+
 
 
 
