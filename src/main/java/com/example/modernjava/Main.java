@@ -16,14 +16,19 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IntSummaryStatistics;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ForkJoinPool;
@@ -39,7 +44,7 @@ import java.util.stream.LongStream;
 import java.util.stream.Stream;
 public class Main {
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws NoSuchAlgorithmException {
 
     List<Apple> apples = asList(new Apple(130, RED, 2), new Apple(170, GREEN, 1),
         new Apple(190, RED, 5),
@@ -1489,8 +1494,7 @@ public class Main {
 
 
     // 10개 이상일시
-    Map<String, Integer> age2 = Map.ofEntries(entry("jay", 20), entry("kay", 20),
-        entry("zzdads", 30));
+    Map<String, Integer> age2 = Map.ofEntries(entry("jay", 20), entry("kay", 20), entry("zzdads", 30));
 
     System.out.println("age2 = " + age2);
     System.out.println("jay = " + age2.get("jay"));
@@ -1499,7 +1503,7 @@ public class Main {
      * removeIf , replaceAll
      *
      * 호출한 컬렉션 자체를 바꾼다 , 새로운결과를 만드는 스트림과는 달리 , 기존 컬렉션을 바꾸는것.
-     * 컬레션 바꾸는동작은 에러를 유발한다.
+     * 컬렉션 바꾸는동작은 에러를 유발하기 쉽다고 한다.
      *
      * ex) foreach + remove 를 사용할때 , foreach 는 내부적으로 iterator 객체를 사용 + Collection 객체의 remove 를 호출
      * 반복하면서 별도의 두 객체에서 컬렉션을 바꿔버린다
@@ -1507,14 +1511,150 @@ public class Main {
      *
      * removeIf 를 사용시 버그없이 쉽게 가능하다.
      *
+     * ! 당연히 asList 를 사용하면 추가삭제가 불가하기떄문에 오류가뜬다.
+     *
+     */
+
+    List<String> remove = new ArrayList<>();
+
+    remove.add("a12");
+    remove.add("c14");
+    remove.add("d33");
+    remove.add("adasd");
+    remove.add("zzasd");
+    remove.add("12asdasd");
+    remove.add("1zzzzz");
+    remove.add("32adasd");
+
+    remove.removeIf(
+        s2 -> Character.isDigit(s2.charAt(0))
+    );
+
+    System.out.println("remove = " + remove);
+
+    remove.replaceAll(
+        s2 -> Character.toUpperCase(s2.charAt(0)) + s2.substring(1)
+    );
+
+    System.out.println("remove = " + remove);
+
+    for (Map.Entry<String, Integer> entry : age.entrySet()) {
+      String friend = entry.getKey();
+      Integer value = entry.getValue();
+
+      System.out.println(friend + " is " + value + " years old");
+
+    }
+
+    /**
+     *  8버전부터 , BiConsumer 를 인수로받는 forEach 메서드 지원
+     */
+
+    age.forEach(
+        (s3, s4) -> System.out.println(s3 + " is " + s4 + " years old")
+    );
+
+
+
+    /**
+     * 정렬 메서드 , 맵의 키 , 값에따라
+     */
+
+    Map<String, String> movives = Map.ofEntries(entry("Jay", "Star Wars"),
+        entry("Selly", "Dark Knight"),
+        entry("Hee", "Titinic"));
+
+    movives.entrySet().stream().sorted(Entry.comparingByValue())
+        .forEachOrdered(System.out::println);
+
+    /**
+     *
+     * Java8 , HashMap 성능이 개선됐다
+     * 기존의 맵항목은 -> 키로생성한 해시코드로 접근할수있는 버켓에 저장했다  , 많은키가 같은 해시코드를 반환 -> 시간이 걸리는 O(n) LinkedList 로 반환해야하므로 성능 저하
+     * 버킷이 너무 커질경우 -> O(log(n)) 의 시간이 소요되는 정렬된 tree 를 이용해 동적으로 치환해 충돌이 일어나는 요소반환 성능을 개선.
+     * but ! , 키가 String , Number 클래스같은 Comparable 형태여야만 정렬트리지원.
+     *
+     */
+
+    System.out.println(movives.getOrDefault("Jay", "Matrix"));
+    System.out.println(movives.getOrDefault("Liz", "Matrix"));
+
+    /**
+     * 계산패턴
+     * 맵에 키가 존재하는지 여부에따라 , 어떤 동작을 실행하고 결과를 저장 , 얘를들어 키를 이용해 값비싼 동작을 실행해서 얻은 결과를 캐시
+     *
+     * ComputeIfAbsent : 제공된 키에 값이 없으면 or null , 키를 이용해 새 값을 계산후 맵에 추가
+     * ComputeIfPresent : 제공된 키가 존재하면 , 새값을 계산하고 맵에 추가
+     * compute : 제공된 키로 새값을 계산하고 맵에 저장
      */
 
 
+//    Map<String, byte[]> dateToHash = new HashMap<>();
+//
+//    MessageDigest instance = MessageDigest.getInstance("SHA-256");
+//
+//    맵에서 키를 찾은후 , 키자 존재하지않으면 calculateDigest 헬퍼가 제공된키의 해시를 계산한다 , 그리고 그값을 저장
+//
+//    lines.forEach( line -> dateToHash.computeIfAbsent( line , this::calculateDigest));
+
+    Map<String, List<String>> friendsToMovies = new HashMap<>();
+
+    String friend = "Raphael";
+
+    List<String> movieList = friendsToMovies.get(friend);
+
+    if (movieList == null) {
+      movieList = new ArrayList<>();
+      friendsToMovies.put(friend, movieList);
+    }
+
+    movieList.add("Titinic");
+
+    System.out.println(friendsToMovies);
+
+    // <-> 인터페이스 활용
+
+    friendsToMovies.computeIfAbsent(
+        "Jay", name2 -> new ArrayList<>()).add("Star Wars");
+
+    System.out.println(friendsToMovies);
 
 
 
 
+    /**
+     * 삭제패턴
+     * remove 메서드 ,
+     * 기존것과 다르게 틍적값과 연관되어 있을떄만 항목을 제거하는 오버로드 버전 메서드를 제공한다.
+     */
 
+    Map<String, String> moviess = new HashMap<>();
+
+    moviess.put("Lisa", "Avengers");
+
+//    if (movives.containsKey("Jay") && Objects.equals(movives.get("Jay"), value)) {
+//      movives.remove(key);
+//      return;
+//    } else {
+//      return;
+//    }
+
+    /**
+     * 교체패턴
+     */
+
+    System.out.println(moviess);
+
+    moviess.remove("Lisa", "Avengers");
+
+    System.out.println(moviess);
+
+    moviess.put("Jay", "Star Wars");
+    moviess.put("Sera", "Titinic");
+
+    moviess.replaceAll((key, value) -> value.toUpperCase());
+
+    System.out.println("moviess = " + moviess);
 
 
 
