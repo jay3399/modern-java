@@ -31,6 +31,8 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentHashMap.KeySetView;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinTask;
 import java.util.function.DoubleFunction;
@@ -1656,12 +1658,107 @@ public class Main {
 
     System.out.println("moviess = " + moviess);
 
+    /**
+     * 합치기
+     * 중복키없는것은 , PutAll
+     * 중복 있을시에는 merge 이용
+     *
+     * merge -> null 관련된 처리도가능
+     * 지정된 키과 연관된 값이 없거나 널이면 , 키를 널이아닌 값과 연결한다.
+     * 아니면 연결된 값을 주어진 매핑함수의 결과값으로 대치하거나 결과가 널이면 항목을 제거한다
+     *
+     * merge를 이용해 초기화 검사를 구현 가능. ->  영화카운트.
+     */
 
 
+    Map<String, String> lunch = Map.ofEntries(entry("Sera", "Shrimp"), entry("Lisa", "Chicken"),
+        entry("Jay", "Sandwich"));
 
+    Map<String, String> lunch2 = Map.ofEntries(entry("Liz", "noodle"), entry("Val", "pizza"),
+        entry("Sera", "Chicken")
+    );
 
+    HashMap<String, String> every = new HashMap<>(lunch);
 
+    lunch2.forEach(
+        (k, v) -> every.merge(k, v, (dish1, dish2) -> dish1 + "&" + dish2)
+    );
 
+    System.out.println("every = " + every);
+
+//    every.putAll(lunch2);
+//
+//    System.out.println("every = " + every);
+
+    Map<String, Long> movieToCount = new HashMap<>();
+
+    movieToCount.put("Star Wars", 1L);
+
+    String movieName = "Avengers";
+
+//    Long countforMovie = movieToCount.get(movieName);
+//
+//    if (countforMovie == null) {
+//      movieToCount.put(movieName, 1L);
+//    } else {
+//      movieToCount.put(movieName, countforMovie + 1L);
+//    }
+
+    movieToCount.merge(movieName, 1L, (key, count2) -> count2 + 1L);
+
+    System.out.println("movieToCount = " + movieToCount);
+
+    /**
+     * CurrentHashMap
+     * 동시성 친화적 , 자료구조의 특정부분만 잠궈 동시추가 , 갱신작업을함
+     * 동기화된 HashTable 버전에비해 읽기 , 쓰기 연산성능 ++
+     *
+     * +
+     * ForEach - 각 ( 키 , 값) 쌍에 주어진 액션을 싱행
+     * Reduce - 모든 ( 키 , 쌍)  쌍을 제공된 리듀스 함수를 이용해 결과로 합침
+     * Search - 널이 아닌 값을 반환할떄까지  각 쌍에 함수를 적용
+     *
+     * 키 , 값으로 연산 ( foreach , reduce , search)
+     * 키로 연산 ( forEachKey , reduceKey , searchKeys)
+     * 값으로 연산 ( forEachValue , reduceValues , searchValues)
+     * Map.entry 객체로 연산 ( forEachEntry , reduceEntries , searchEntries)
+     *
+     *
+     * ! 상태를 잠그지 않고 연산을 수행하기때문에 , 계산이 진행되는동안 바뀔수있는 객체 , 값  , 순서에 의존하지 말아야한다
+     *
+     * 병렬성 기준값 = threshold 를 지정해야하고 , 맵의크기가 주어진 기준값보다 작으면 순차적으로 연산을 실행
+     * 기준값이 1이면 , 공통스레드푸를 이용해 병렬성을 극대화
+     * Long.MAX_VALUE 를 기준값으로하면 , 한개의 스레드로 연산을 실행 .
+     *
+     * ++
+     * 원시타입에는 전용 each reduce 연산이 제공
+     * reduceValuesToInt  .. reduceKeysToLong .. 등등
+     */
+
+    ConcurrentHashMap<String, Long> concurrentHashMap = new ConcurrentHashMap<>();
+
+    concurrentHashMap.put("a", 23232333233L);
+    concurrentHashMap.put("b", 1231313L);
+    concurrentHashMap.put("c", 11122L);
+    concurrentHashMap.put("d", 12123113L);
+    concurrentHashMap.put("e", 1231312313L);
+    concurrentHashMap.put("f", 21223232333233L);
+
+    long value = 1;
+
+    Optional<Long> maxValue = Optional.ofNullable(
+        concurrentHashMap.reduceValues(value, Long::max));
+
+    System.out.println("maxValue = " + maxValue);
+
+    // size 가아닌 , 매핑카운트를 쓰면 범위를 넘어가는것을 방지 가능
+
+    int size = concurrentHashMap.size();
+    long l2 = concurrentHashMap.mappingCount();
+
+    KeySetView<String, Long> strings1 = concurrentHashMap.keySet();
+
+    System.out.println("strings1 = " + strings1);
 
 
 
