@@ -48,9 +48,13 @@ public class Main {
 
   public static void main(String[] args) throws NoSuchAlgorithmException {
 
-    List<Apple> apples = asList(new Apple(130, RED, 2), new Apple(170, GREEN, 1),
+    List<Apple> apples = asList(
+        new Apple(130, RED, 2),
+        new Apple(170, GREEN, 1),
         new Apple(190, RED, 5),
-        new Apple(110, RED, 6), new Apple(130, GREEN, 3), new Apple(130, BROWN, 7),
+        new Apple(110, RED, 6),
+        new Apple(130, GREEN, 3),
+        new Apple(130, BROWN, 7),
         new Apple(170, RED, 8));
 
     Thread hello = new Thread(
@@ -267,7 +271,11 @@ public class Main {
      * 데이터소스 , 연속된요소 , 데이터처리연산 , 파이프라인
      */
     List<String> collect5 = menu.stream().filter(
-        dish -> dish.getCalories() > 300
+
+        dish -> {
+          System.out.println("dish.getCalories( = " + dish.getCalories());
+          return dish.getCalories() > 300;
+        }
     ).map(Dish::getName).limit(3).collect(toList());
 
     System.out.println("collect5 = " + collect5);
@@ -329,7 +337,7 @@ public class Main {
     List<String> collect7 = menu.stream().filter(
             dish -> {
               System.out.println("filter:" + dish.getName()); // 필터링한 요리명 출력
-              return dish.getCalories() > 300;
+              return dish.getCalories() < 300;
             }
         ).map(dish -> {
           System.out.println("map" + dish.getName()); // 추출한 요리명 출력
@@ -366,7 +374,9 @@ public class Main {
      */
 
     List<Dish> collect8 = dishes.stream().takeWhile(
-        dish -> dish.getCalories() < 300
+        dish ->  {
+          System.out.println("filter2 = " + dish);
+          return dish.getCalories() < 300; }
     ).collect(toList());
 
     List<Dish> collect9 = dishes.stream().dropWhile(
@@ -376,7 +386,9 @@ public class Main {
     System.out.println("collect8 = " + collect8);
     System.out.println("collect9 = " + collect9);
 
-    List<Dish> collect10 = dishes.stream().filter(dish -> dish.getCalories() < 300).limit(2)
+    List<Dish> collect10 = dishes.stream().filter(dish -> {
+          System.out.println("filter3 = " + dish);
+          return dish.getCalories() < 300; }).limit(3)
         .collect(toList());
 
     System.out.println("collect10 = " + collect10);
@@ -549,8 +561,6 @@ public class Main {
      * 반복적인 합계에서는 sum 변수를 공유 하기떄문에 , 병렬화자체가 힘들다
      * 강제적동기회 -> 병렬화로 얻어야할 이득 << 스레드간의 소모적 경쟁때문에 상쇄
      *
-     *
-     *
      */
 
     Integer reduce5 = menu.stream().map(
@@ -636,8 +646,7 @@ public class Main {
               System.out.println("transaction = " + transaction.getYear());
               return transaction.getYear() == 2011;
             }
-        ).sorted(Comparator.comparing(transaction ->
-            transaction.getValue()))
+        ).sorted(Comparator.comparing(Transaction::getValue))
         .collect(toList());
 
 
@@ -728,7 +737,7 @@ public class Main {
      */
 
     Integer reduce10 = transactions.stream().map(
-        transaction -> transaction.getValue()    // Integer 반환
+        transaction -> transaction.getValue()    // Integer
     ).reduce(
         0, Integer::sum                   // Integer -> int -> 연산 -> 다시 Integer
     );
@@ -1331,6 +1340,9 @@ public class Main {
      * 병렬실행시 스레드는 어디서생성 , 몇개나생성 ? -> 병렬스트림은 내부적으로 조인/포크 프레임워크 사용
      *
      */
+
+
+
 
     long l = parallelSum(100000L);
     System.out.println("l = " + l);
