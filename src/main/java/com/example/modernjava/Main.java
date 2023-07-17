@@ -1030,6 +1030,7 @@ public class Main {
 
     Map<Type, List<Dish>> collect41 = menu.stream().collect(groupingBy(Dish::getType));
 
+
     System.out.println("collect41 = " + collect41);
 
     /**
@@ -1143,9 +1144,9 @@ public class Main {
 
     System.out.println("collect49 = " + collect49);
 
-    Map<Type, Optional<Dish>> collect50 = menu.stream().collect(
-        groupingBy(Dish::getType, maxBy(Comparator.comparingInt(Dish::getCalories)))
-    );
+    Map<Type, Optional<Dish>> collect50 = menu.stream().collect
+        (groupingBy(Dish::getType, maxBy(Comparator.comparingInt(Dish::getCalories))));
+
 
     System.out.println("collect50 = " + collect50);
 
@@ -1156,8 +1157,7 @@ public class Main {
      * 중첩연산 과정 , groupingBy -> CollectingAndThen -> maxBy (reducing Collector) -> Optional::get
      */
     Map<Type, Dish> collect51 = menu.stream().collect(
-        groupingBy(Dish::getType,
-            collectingAndThen(maxBy(Comparator.comparingInt(Dish::getCalories)), Optional::get))
+        groupingBy(Dish::getType, collectingAndThen(maxBy(Comparator.comparingInt(Dish::getCalories)), Optional::get))
     );
     System.out.println("collect51 = " + collect51);
 
@@ -1250,8 +1250,11 @@ public class Main {
 
     System.out.println("collect58 = " + collect58);
 
-    Map<Boolean, Dish> collect59 = menu.stream().collect(partitioningBy(Dish::isVegetartian,
-        collectingAndThen(maxBy(Comparator.comparingInt(Dish::getCalories)), Optional::get)));
+    Map<Boolean, Dish> collect59 = menu.stream().collect
+        (
+        partitioningBy(Dish::isVegetartian,
+        collectingAndThen(maxBy(Comparator.comparingInt(Dish::getCalories)), Optional::get))
+        );
 
     System.out.println("collect59 = " + collect59);
 
@@ -1363,14 +1366,14 @@ public class Main {
      * 박싱 <-> 언박싱과정에서 생각보다 비용이 많이 소모된다 -> 일반적으로 기본형특화스트림이 좋다.
      * 병렬이 더 성능이떨어지는연산 -> limit, findFirst 처럼 요소의 순서에 의존하는 연산은 비싼 비용이든다.
      * but , findAny 는 요소의 순서에 상관없이 연산하므로 findFirst 보다 낫다.
-     * unordered 로 비정렬 스트림을 얻고 , 요소의순서가 상과넚다면 , 비정렬스트림에 limit 를 호출하는것이 효과적.
+     * unordered 로 비정렬 스트림을 얻고 , 요소의순서가 상관없다면 , 비정렬스트림에 limit 를 호출하는것이 효과적.
      * 전체 파이프라인 연산비용을 고려해라 , 요소수가 N , 하나처리하는데  비용 Q -> 전체처리비용 -> N * Q , if Q++ -> 전체비용 ++ -> 병렬사용
      * 소량데이터는 당연히 병렬스트림이 도움되지않는다.
      *
      * 자료구조의 적절성
      * ex> LinkedList 는 분할하려면 모든요소를 탐색 , but ArrayList 는 요소탐색하지않고 분할가능 , ArrayList 가 더 효율적이다 , or Range 팩터리메서드로만든 기본형스트림도 쉽게 분해가능
      *
-     * 스트림특성 , 파이프라인의 죽안연산이 스트림의 특성을 어떻게 바꾸냐에 따라 분해과정 성능이 달라진다
+     * 스트림특성 , 파이프라인의 중간연산이 스트림의 특성을 어떻게 바꾸냐에 따라 분해과정 성능이 달라진다
      * ex) sized 스트림은 "정확히 같은크기의" 두스트림으로 분할 할 수 있으므로 , 효과적인 병렬처리가 가능하지만
      * 필터연산이 있으면 , 스트림 길이 예측자체가 불가능하므로 효과적으로 스트림병렬 처리가 안된다. ( + iterate vs IntStream.range )
      *
@@ -1585,7 +1588,7 @@ public class Main {
      *
      * Java8 , HashMap 성능이 개선됐다
      * 기존의 맵항목은 -> 키로생성한 해시코드로 접근할수있는 버켓에 저장했다  , 많은키가 같은 해시코드를 반환 -> 시간이 걸리는 O(n) LinkedList 로 반환해야하므로 성능 저하
-     * 버킷이 너무 커질경우 -> O(log(n)) 의 시간이 소요되는 정렬된 tree 를 이용해 동적으로 치환해 충돌이 일어나는 요소반환 성능을 개선.
+     * 버킷이 너무 커질경우 -> O(log(n)) 의 시간이 소요되는 정렬된 tree 를 , 정확히는 RedBlackTree 를 이용 동적으로 치환해 충돌이 일어나는 요소반환 성능을 개선.
      * but ! , 키가 String , Number 클래스같은 Comparable 형태여야만 정렬트리지원.
      *
      */
@@ -1629,9 +1632,11 @@ public class Main {
     // <-> 인터페이스 활용
 
     friendsToMovies.computeIfAbsent(
-        "Jay", name2 -> new ArrayList<>()).add("Star Wars");
+        "Jay", name2 -> new ArrayList<>()).add("Star wars");
 
-    System.out.println(friendsToMovies);
+    System.out.println("friendsToMovies = " + friendsToMovies);
+
+
 
 
 
@@ -1639,7 +1644,7 @@ public class Main {
     /**
      * 삭제패턴
      * remove 메서드 ,
-     * 기존것과 다르게 틍적값과 연관되어 있을떄만 항목을 제거하는 오버로드 버전 메서드를 제공한다.
+     * 기존것과 다르게 특정값과 연관되어 있을떄만 항목을 제거하는 오버로드 버전 메서드를 제공한다.
      */
 
     Map<String, String> moviess = new HashMap<>();
@@ -1709,7 +1714,7 @@ public class Main {
     String movieName = "Avengers";
 
 //    Long countforMovie = movieToCount.get(movieName);
-//
+
 //    if (countforMovie == null) {
 //      movieToCount.put(movieName, 1L);
 //    } else {
@@ -1725,7 +1730,6 @@ public class Main {
      * 동시성 친화적 , 자료구조의 특정부분만 잠궈 동시추가 , 갱신작업을함
      * 동기화된 HashTable 버전에비해 읽기 , 쓰기 연산성능 ++
      *
-     * +
      * ForEach - 각 ( 키 , 값) 쌍에 주어진 액션을 싱행
      * Reduce - 모든 ( 키 , 쌍)  쌍을 제공된 리듀스 함수를 이용해 결과로 합침
      * Search - 널이 아닌 값을 반환할떄까지  각 쌍에 함수를 적용
