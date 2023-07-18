@@ -8,14 +8,29 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.summingInt;
 
 import com.example.modernjava.Dish.Type;
+import com.example.modernjava.Strategy.HeaderTextProcessing;
 import com.example.modernjava.Strategy.IsNumeric;
+import com.example.modernjava.Strategy.Loan;
+import com.example.modernjava.Strategy.ProcessingObject;
+import com.example.modernjava.Strategy.Product;
+import com.example.modernjava.Strategy.ProductFactory;
+import com.example.modernjava.Strategy.SpellCheckerProcessing;
 import com.example.modernjava.Strategy.Validator;
 import com.example.modernjava.Strategy.isAllLowerCase;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 
 public class Refactoring {
+
+  private final Validator validator;
+
+  public Refactoring(Validator validator) {
+    this.validator = validator;
+  }
 
   public static void main(String[] args) {
 
@@ -146,8 +161,54 @@ public class Refactoring {
     /**
      * 템플릿 메서드
      * 알고리즘의 개요를 제시한다음에 , 알고리즘의 일부를 고칠수있는 유연함을 제공해야할떄 .
-     *
+     * OnlineBanking
      */
+
+
+
+    /**
+     * 의무체인
+     * 한객체가 어떤 작업을 처리 -> 다음에 다른객체로 결과전달 -> 다른객체 작업처리 -> 다른객체로 전달..
+     * <->
+     * 람다 andThen 조합으로 가독성++
+     */
+
+    ProcessingObject p1 = new HeaderTextProcessing();
+    ProcessingObject p2 = new SpellCheckerProcessing();
+
+    p1.setSuccesor(p2);
+
+    Object handle = p1.handle("Aren't labdas really sexy?!");
+    System.out.println("handle = " + handle);
+
+    UnaryOperator<String> headerProcessing = (String text) -> text;
+    UnaryOperator<String> spellcheckerProcessing = (String text) -> text.replaceAll("labda",
+        "lambda");
+
+    Function<String, String> stringStringFunction = spellcheckerProcessing.andThen(
+        headerProcessing);
+
+    String apply = stringStringFunction.apply("Aren't labdas really sexy?!");
+
+    System.out.println("apply = " + apply);
+
+
+
+    /**
+     * 팩토리
+     * 인스타스화 로직을 클라이언트에 노출하지않고 , 객체를 만들떄 팩토리 디자인패턴을 사용
+     *
+     * 생성자와 , 설정을 외부로 노출하지않고 단순하게 상품을 생산.
+     */
+
+    Product loan = ProductFactory.createProduct("loan");
+
+    System.out.println("loan = " + loan.getClass());
+    
+    Product loan1 = ProductFactory.createProductWithLambdas("loan");
+
+    System.out.println("loan1.getClass() = " + loan1.getClass());
+
 
 
 
