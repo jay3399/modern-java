@@ -1226,7 +1226,6 @@ public class Main {
     System.out.println("collect54 = " + collect54);
 
 
-
     /**
      * 분할
      * 분할함수라 불리는 프리디케이트를 분류함수로 사용하는 특수한 그룹화기능
@@ -1465,8 +1464,7 @@ public class Main {
     strings.add("zfafaf");
 
     /**
-     * 작은 컬렉션 객체를 쉽게만들수있게 제공
-     * 고정크기 리스트이므로 , 요소를 갱신할순있지만 요소를 추가하거나 삭제는 불가
+     * 작은 컬렉션 객체를 쉽게만들수있게 제공 ,고정크기 리스트이므로 요소를 갱신할순있지만 요소를 추가하거나 삭제는 불가
      */
 //
     List<String> list2 = asList("asdasd", "zzz", "asdadad");
@@ -1486,12 +1484,6 @@ public class Main {
 
     List<String> asda = List.of("asda", "zzdasd", "Asdad");
     System.out.println("asda = " + asda);
-
-
-//    asda.add("zdadaasd"); -> 위는 변경할수없는 리스트 오류난다
-
-//    asda.set(0, "azzz");
-
 
 
 
@@ -1588,7 +1580,7 @@ public class Main {
      *
      * Java8 , HashMap 성능이 개선됐다
      * 기존의 맵항목은 -> 키로생성한 해시코드로 접근할수있는 버켓에 저장했다  , 많은키가 같은 해시코드를 반환 -> 시간이 걸리는 O(n) LinkedList 로 반환해야하므로 성능 저하
-     * 버킷이 너무 커질경우 -> O(log(n)) 의 시간이 소요되는 정렬된 tree 를 , 정확히는 RedBlackTree 를 이용 동적으로 치환해 충돌이 일어나는 요소반환 성능을 개선.
+     * 버킷이 너무 커질경우 -> O(log(n)) 의 시간이 소요되는 정렬된 RedBlackTree 를 이용 동적으로 치환해 충돌이 일어나는 요소반환 성능을 개선.
      * but ! , 키가 String , Number 클래스같은 Comparable 형태여야만 정렬트리지원.
      *
      */
