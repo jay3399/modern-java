@@ -8,13 +8,10 @@ import java.util.function.ToIntFunction;
 
 public class PrettyApple {
 
-  private final List<Apple> appleList;
-
   private final AppleFormatter appleFormatter;
 
   public PrettyApple(List<Apple> appleList, AppleFormatter appleFormatter) {
     this.appleFormatter = appleFormatter;
-    this.appleList = appleList;
   }
 
   public void prettyPrintApple(List<Apple> appleList, AppleFormatter appleFormatter) {

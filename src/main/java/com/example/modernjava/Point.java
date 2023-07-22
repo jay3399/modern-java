@@ -53,4 +53,10 @@ public class Point {
     return points.stream().map(p -> new Point(p.getX() + x, p.getY())).collect(Collectors.toList());
 
   }
+
+
+
+
+
+
   }

@@ -17,12 +17,14 @@ import com.example.modernjava.Strategy.ProductFactory;
 import com.example.modernjava.Strategy.SpellCheckerProcessing;
 import com.example.modernjava.Strategy.Validator;
 import com.example.modernjava.Strategy.isAllLowerCase;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
 
 public class Refactoring {
 
@@ -88,7 +90,6 @@ public class Refactoring {
      * 메서드참조와 함께 사용할수있도록 ,내장 헬퍼메서드를 제공.
      */
 
-
     // 저수준 reducing 연산
 
     Integer reduce = menu.stream().map(Dish::getCalories).reduce(0, (s1, s2) -> s1 + s2);
@@ -111,12 +112,6 @@ public class Refactoring {
      * 조건부 연기실행 , 실행어라운드 패턴  P300
      */
 
-
-
-
-
-
-
     /**
      * 디자인패턴
      * 다양한 패턴을 유형별로디자인 , 공통적인 소프트웨어문제를 설계할떄 재사용할수있는 검증된 청사진 제공.
@@ -132,8 +127,6 @@ public class Refactoring {
      *
      */
 
-
-
     /**
      * 전략
      * 한유형의 알고리즘을 보유한상태에서 , 런타임!에 적절한 알고리즘을 선택하는 기법
@@ -141,7 +134,6 @@ public class Refactoring {
      * 알고리즘을 나타내는 인터페이스 , 다양한 알고리즘을 나타내는 한개이상의 인터페이스 구현
      * 전략객체를 사용하는 한개 이상의 클라이언트
      */
-
 
     //+ 스프링 컴포넌트쓰면 더 깔끔하게도 가능할듯
     // 이부분역시 , 인터페이스가 기대되는곳 -> 람다 사용하며 클래스 없이구현가능하다 .
@@ -163,8 +155,6 @@ public class Refactoring {
      * 알고리즘의 개요를 제시한다음에 , 알고리즘의 일부를 고칠수있는 유연함을 제공해야할떄 .
      * OnlineBanking
      */
-
-
 
     /**
      * 의무체인
@@ -192,8 +182,6 @@ public class Refactoring {
 
     System.out.println("apply = " + apply);
 
-
-
     /**
      * 팩토리
      * 인스타스화 로직을 클라이언트에 노출하지않고 , 객체를 만들떄 팩토리 디자인패턴을 사용
@@ -204,15 +192,47 @@ public class Refactoring {
     Product loan = ProductFactory.createProduct("loan");
 
     System.out.println("loan = " + loan.getClass());
-    
+
     Product loan1 = ProductFactory.createProductWithLambdas("loan");
 
     System.out.println("loan1.getClass() = " + loan1.getClass());
 
+    /**
+     * 디버깅 : 스틱 트레이스 & 로깅
+     *
+     * ex) 예외발생으로 프로그램실행이 중단되면 , 먼저 어디에서 멈췄고 어떻게 멈추게 되었는지 살펴봐야한다
+     * 스택프레임 -> 호출위치 , 인수값 , 미서드의 지역변수등을 포함한 호출정보가 생성되며 , 이 정보는 스택프레임에 저장된다
+     *
+     * 프로그램이 멈추면 , 어떻게 멈추게되었는지 프레임별로 보여주는 스텍트레이스!를 얻을수가 있다 .
+     * 즉 문제가 발생한 지점에 이르게된 메서드 호출리스트를 얻을수있고 , 이것을통해 문제가 어떻게 발생했는지 이해할수있다 .
+     *
+     * but , 람다 표현식은 이름이 없기떄문에 복잡한 스택트레이스가 생성된다. -> Debugging Class
+     *
+     */
 
+    /**
+     * 정보로깅
+     */
 
+    List<Integer> nums = asList(2, 3, 4, 5);
 
+    nums.stream().map(x -> x + 17).filter(x -> x % 2 == 0).limit(2).forEach(System.out::println);
 
+    // forEach는 호출되는 순간 전체스트림!이 소비된다 , 각각의연산이 어떤 결과를 호출하는지 알고싶다 ->
+
+    /**
+     * Peek
+     * peek 은 스트림의 각 요소를 소비한것 처럼! 동작을 실행하지만 , forEach처럼 실제로 소비되지는 않는다
+     * 자신이 확인한 요소를 파이프라인의 다음연산으로 전달한다
+     */
+
+    List<Integer> collect2 = nums.stream().peek(x -> System.out.println("from stream " + x))
+        .map(x -> x + 17)
+        .peek(x -> System.out.println("after map: " + x))
+        .filter(x -> x % 2 == 0)
+        .peek(x -> System.out.println("after filer: "+ x))
+        .limit(3)
+        .peek(x -> System.out.println("after limit: " + x))
+        .collect(Collectors.toList());
   }
-
 }
