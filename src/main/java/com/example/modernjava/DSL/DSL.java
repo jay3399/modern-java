@@ -1,13 +1,28 @@
-package com.example.modernjava;
+package com.example.modernjava.DSL;
 
 
+import static java.util.Arrays.stream;
+
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import scala.concurrent.impl.FutureConvertersImpl.P;
 
 public class DSL {
 
-  public static void main(String args[]) {
+  public static void main(String args[]) throws IOException {
 
 
     /**
@@ -84,7 +99,117 @@ public class DSL {
 
 
 
-     
+
+
+
+
+
+
+    /**
+     * 최신자바의 작은 API
+     *
+     * Comparator 인터페이스에 새 메서드가 추가외었다.
+     */
+
+    List<Person> persons = Arrays.asList(new Person(20 , "jay"), new Person(30 , "sally"), new Person(10 , "liz"),
+        new Person(25 , "sera"));
+
+    // 내부클래스로 인터페이스 구현.
+
+//    Collections.sort(persons, new Comparator<Person>() {
+//      @Override
+//      public int compare(Person o1, Person o2) {
+//        return o1.getAge() - o2.getAge();
+//      }
+//    });
+
+
+
+    // 내부클래스 -> 람다
+
+    Collections.sort(persons, (o1, o2) -> o1.getAge() - o2.getAge());
+
+    /**
+     * 정적유틸리티메서드제공 , 정적메서드는 Comparator 인터페이스에 포함돼있다.
+     *
+     */
+    Collections.sort(persons , Comparator.comparingInt(Person::getAge));
+
+    Collections.sort(persons, Comparator.comparingInt(Person::getAge).reversed());
+
+//    Collections.sort(persons,
+//        Comparator.comparingInt(Person::getAge).thenComparing(Person::getName));
+
+    persons.sort(Comparator.comparingInt(Person::getAge).thenComparing(Person::getName));
+
+
+
+    for (Person person : persons) {
+      System.out.println("person = " + person.getAge());
+    }
+
+
+
+
+
+    /**
+     * 문제가 분리되지않아 가독성과 유지보수성이 모두 저하되었다
+     * 같은ㅁ의무를 지닌 코드가 여러행에분산
+     * FIleReader가 만들어짐
+     * file이 종료되었는지 확인하는 while루프의 두번째조건
+     * 파일의 다음행을 읽는 while루프의 마지막행
+     *
+     * 40행수집 코드도 세부분으로 흩어져있다
+     * errorCount변수 초기화 코드
+     * while루프의 첫번쨰조건
+     * Error 로그를 발견하면 카운트증가행
+     */
+
+
+
+    List<String> error = new ArrayList<>();
+
+
+    int errorCount = 0 ;
+
+    BufferedReader bufferedReader = new BufferedReader(
+        new FileReader("/Users/jay/Downloads/test/test1.txt"));
+
+    String line = bufferedReader.readLine();
+
+    while (errorCount < 40 && line != null) {
+      if (line.startsWith("ERROR")) {
+        error.add(line);
+        errorCount++;
+      }
+      line = bufferedReader.readLine();
+    }
+
+    List<String> error1 = Files.lines(Paths.get("/Users/jay/Downloads/test/test1.txt"))
+        .filter(line1 -> line1.startsWith("ERROR"))
+        .limit(40)
+        .collect(Collectors.toList());
+
+    System.out.println("error1 = " + error1);
+
+//    long uniqueWords = 0;
+//
+//    try (Stream<String> lines = Files.lines(Paths.get("/Users/jay/Downloads/test/test1.txt"), Charset.defaultCharset()))
+//    {
+//      uniqueWords =
+//          lines.flatMap(
+//              line -> stream(line.split(" ")).distinct()
+//          ).count();
+//    } catch (IOException e) {
+//      e.printStackTrace();
+//    }
+//
+//    System.out.println("uniqueWords = " + uniqueWords);
+//
+
+
+
+
 
 
 

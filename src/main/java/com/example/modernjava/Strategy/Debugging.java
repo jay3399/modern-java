@@ -1,4 +1,4 @@
-package com.example.modernjava;
+package com.example.modernjava.Strategy;
 
 import java.util.Arrays;
 import java.util.List;

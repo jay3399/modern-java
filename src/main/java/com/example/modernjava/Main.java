@@ -863,6 +863,7 @@ public class Main {
     System.out.println("uniqueWords = " + uniqueWords);
 
 
+
     /**
      * 무한스트림
      * 기존의 고정된컬렉션에서 고정된 크기로 스트림을 만들었던것과 달리 , 크기가 고정되지 않은 무한 스트림

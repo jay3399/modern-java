@@ -1,4 +1,4 @@
-package com.example.modernjava;
+package com.example.modernjava.Strategy;
 
 import static com.example.modernjava.Dish.Type.FISH;
 import static com.example.modernjava.Dish.Type.MEAT;
@@ -7,6 +7,8 @@ import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.summingInt;
 
+import com.example.modernjava.CaloricLevel;
+import com.example.modernjava.Dish;
 import com.example.modernjava.Dish.Type;
 import com.example.modernjava.Strategy.HeaderTextProcessing;
 import com.example.modernjava.Strategy.IsNumeric;
