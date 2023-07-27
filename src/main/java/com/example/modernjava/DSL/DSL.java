@@ -154,7 +154,7 @@ public class DSL {
 
     /**
      * 문제가 분리되지않아 가독성과 유지보수성이 모두 저하되었다
-     * 같은ㅁ의무를 지닌 코드가 여러행에분산
+     * 같은의무를 지닌 코드가 여러행에분산
      * FIleReader가 만들어짐
      * file이 종료되었는지 확인하는 while루프의 두번째조건
      * 파일의 다음행을 읽는 while루프의 마지막행
@@ -206,6 +206,12 @@ public class DSL {
 //
 //    System.out.println("uniqueWords = " + uniqueWords);
 //
+
+    /**
+     *  Collectors -> P334
+     */
+
+
 
 
 

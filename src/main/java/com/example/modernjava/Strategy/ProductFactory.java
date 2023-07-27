@@ -26,6 +26,7 @@ public class ProductFactory {
   }
 
   final static Map<String, Supplier<Product>> map = new HashMap<>();
+
   static {
     map.put("loan", Loan::new);
     map.put("stock", Stock::new);
